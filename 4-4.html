@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vega：波動率敏感度 | 歐大選擇權教室 Joption</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ghibli-green: #e8f5e9;
+            --ghibli-leaf: #81c784;
+            --ghibli-sky: #e1f5fe;
+            --ghibli-wood: #8d6e63;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(to bottom, #fdfbfb 0%, #ebedee 100%);
+            color: #3e2723;
+        }
+
+        .ghibli-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 2px solid #fff;
+            transition: transform 0.3s ease;
+        }
+
+        .ghibli-header {
+            background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--ghibli-wood);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 3px solid #fff;
+        }
+
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .svg-illustration {
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header / Hero Section -->
+    <header class="ghibli-header text-white pt-12 pb-24 px-6 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-wide">歐大選擇權教室</h1>
+            <p class="text-xl opacity-90 font-light italic">Joption Academy - 讓投資像森林漫步一樣自然</p>
+        </div>
+        <!-- Abstract Ghibli Cloud Decoration -->
+        <div class="absolute right-0 bottom-0 opacity-20 floating-element">
+            <svg width="200" height="120" viewBox="0 0 200 120" fill="white">
+                <circle cx="50" cy="80" r="40" />
+                <circle cx="100" cy="60" r="50" />
+                <circle cx="150" cy="80" r="40" />
+            </svg>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 -mt-12 mb-20">
+        
+        <!-- Introduction Section -->
+        <section class="ghibli-card p-8 md:p-12 mb-10">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-green-800 mb-4 border-b-2 border-green-100 pb-2">乘風而上的 Vega：波動率敏感度</h2>
+                    <p class="leading-relaxed mb-4 text-gray-700">
+                        在 Joption 的教學中，我們常說選擇權的價格不只受股價影響。想像一下，**隱含波動率 (IV)** 就像是森林裡的「風」。當風變大時，樹葉會劇烈晃動，預期未來的變數增加，這就是波動率上升。
+                    </p>
+                    <p class="leading-relaxed text-gray-700 font-semibold">
+                        而 <span class="text-green-600 bg-green-50 px-2 py-1 rounded">Vega</span>，就是衡量這股「風」每增強 1%，你的選擇權合約價格會跳動多少的溫度計。
+                    </p>
+                </div>
+                <div class="w-48 h-48 bg-green-50 rounded-full flex items-center justify-center svg-illustration">
+                    <!-- Leaf SVG (Ghibli Style) -->
+                    <svg viewBox="0 0 100 100" class="w-32 h-32 fill-green-600">
+                        <path d="M50,10 C50,10 90,40 85,80 C85,80 50,95 15,80 C10,40 50,10 50,10 Z" fill="#81c784" />
+                        <path d="M50,10 L50,90" stroke="#fff" stroke-width="2" />
+                        <path d="M50,30 L80,45 M50,50 L85,65 M50,40 L20,55 M50,60 L15,75" stroke="#fff" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Definition Table Section -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="ghibli-card p-8 bg-sky-50">
+                <h3 class="font-bold text-xl text-sky-800 mb-3">當 IV 上升時...</h3>
+                <p class="text-gray-600">不論是買權 (Call) 還是賣權 (Put)，Vega 都是正值。這意味著波動率越大，權利金就越貴！這對「買方」是有利的。</p>
+            </div>
+            <div class="ghibli-card p-8 bg-orange-50">
+                <h3 class="font-bold text-xl text-orange-800 mb-3">當 IV 下降時...</h3>
+                <p class="text-gray-600">風平浪靜時，選擇權價格會縮水。這就是為什麼賣方喜歡在波動率很高的時候進場「收租」。</p>
+            </div>
+        </section>
+
+        <!-- Interactive Simulator Section -->
+        <section class="ghibli-card p-8 md:p-12 mb-10 border-t-8 border-green-400">
+            <h3 class="text-2xl font-bold text-center text-green-900 mb-8">🌬️ 波動率互動模擬器</h3>
+            
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-inner">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Controls -->
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">設定當前 Vega 值 ($)</label>
+                            <input type="range" id="vegaInput" min="1" max="50" value="25" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                            <div class="flex justify-between mt-2 font-mono font-bold text-green-700">
+                                <span>$1</span>
+                                <span id="vegaVal">$25</span>
+                                <span>$50</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-500 mb-4 uppercase tracking-wider">隱含波動率 (IV) 變化 (%)</label>
+                            <input type="range" id="ivInput" min="-10" max="10" value="0" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                            <div class="flex justify-between mt-2 font-mono font-bold text-blue-700">
+                                <span>-10% (風平浪靜)</span>
+                                <span id="ivVal">0%</span>
+                                <span>+10% (狂風暴雨)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Display -->
+                    <div class="flex flex-col items-center justify-center text-center">
+                        <div id="priceBall" class="w-40 h-40 bg-gradient-to-br from-green-300 to-blue-300 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-xl transition-all duration-300">
+                            $500
+                        </div>
+                        <p class="mt-6 text-gray-500 text-sm">目前的權利金估值</p>
+                        <div class="mt-4 p-4 bg-gray-50 rounded-xl w-full">
+                            <p id="calcText" class="text-sm italic text-gray-600">Vega 影響金額：$0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 p-6 bg-green-50 rounded-2xl text-sm text-green-800 italic">
+                💡 歐大筆記：Joption 的實戰經驗告訴我們，越接近**價平 (ATM)** 的合約，其 Vega 值通常越大。這意味著平價合約對波動率的變化最為敏感。
+            </div>
+        </section>
+
+        <!-- Final Pro Tip -->
+        <section class="ghibli-card p-8 md:p-12 mb-20 bg-wood-50 relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="text-2xl font-bold mb-4">為什麼你該在意 Vega？</h3>
+                <ul class="space-y-3 list-disc pl-5 text-gray-700">
+                    <li>避免在波動率極高時追買，否則會遇到「波動率收縮 (IV Crush)」。</li>
+                    <li>賣方可利用 IV 的高點，賺取 Vega 下跌帶來的價值衰退。</li>
+                    <li>在財報公佈前，Vega 會成為權利金上漲的主驅動力。</li>
+                </ul>
+            </div>
+            <!-- Decorative Seedling -->
+            <div class="absolute bottom-4 right-4 opacity-30">
+                <svg width="60" height="60" viewBox="0 0 60 60">
+                    <path d="M30,60 L30,20" stroke="#5d4037" stroke-width="4" />
+                    <path d="M30,30 Q50,20 50,40" fill="#a5d6a7" />
+                    <path d="M30,40 Q10,30 10,50" fill="#81c784" />
+                </svg>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-white border-t border-gray-200 py-12 px-6 text-center text-gray-500">
+        <div class="max-w-4xl mx-auto">
+            <p class="font-bold text-gray-800 mb-2">JOPTION | 歐大選擇權教室</p>
+            <p class="text-sm">2026 Joption Academy - 金融教育僅供參考，投資有風險，操作需謹慎</p>
+            <div class="mt-6 flex justify-center space-x-4 opacity-50">
+                <!-- Decorative Little Forest Icons -->
+                <span>🌲</span><span>🌳</span><span>🍃</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const vegaInput = document.getElementById('vegaInput');
+        const ivInput = document.getElementById('ivInput');
+        const vegaValDisplay = document.getElementById('vegaVal');
+        const ivValDisplay = document.getElementById('ivVal');
+        const priceBall = document.getElementById('priceBall');
+        const calcText = document.getElementById('calcText');
+
+        const basePrice = 500;
+
+        function updateSimulation() {
+            const vega = parseFloat(vegaInput.value);
+            const ivChange = parseFloat(ivInput.value);
+            
+            vegaValDisplay.innerText = `$${vega}`;
+            ivValDisplay.innerText = `${ivChange}%`;
+
+            // Calculate impact
+            const impact = vega * ivChange;
+            const newPrice = basePrice + impact;
+
+            // Update display
+            priceBall.innerText = `$${newPrice.toFixed(0)}`;
+            calcText.innerText = `Vega 影響金額：${impact >= 0 ? '+' : ''}$${impact.toFixed(0)} (基礎價 $500)`;
+
+            // Visual effect: Ball size based on price
+            const scale = 1 + (impact / 500);
+            priceBall.style.transform = `scale(${Math.max(0.6, Math.min(1.5, scale))})`;
+            
+            // Color shift based on impact
+            if (impact > 0) {
+                priceBall.style.background = 'linear-gradient(to br, #81c784, #4db6ac)';
+            } else if (impact < 0) {
+                priceBall.style.background = 'linear-gradient(to br, #e57373, #ff8a65)';
+            } else {
+                priceBall.style.background = 'linear-gradient(to br, #aed581, #64b5f6)';
+            }
+        }
+
+        vegaInput.addEventListener('input', updateSimulation);
+        ivInput.addEventListener('input', updateSimulation);
+
+        // Init
+        updateSimulation();
+    </script>
+</body>
+</html>

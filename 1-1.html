@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>選擇權大師：從零開始的權利之路</title>
+    <title>歐大選擇權教室：選擇權入門</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -12,101 +12,151 @@
             scroll-behavior: smooth;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
         }
         .card-hover:hover {
             transform: translateY(-5px);
             transition: all 0.3s ease;
         }
+        .ip-badge {
+            display: inline-block;
+            background: #facc15;
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-gray-800">
 
     <!-- Header / Hero Section -->
-    <header class="gradient-bg text-white py-20 px-6 text-center shadow-lg">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6">什麼是選擇權？</h1>
-            <p class="text-xl md:text-2xl opacity-90 mb-8">
-                不只是金融商品，它是關於「未來權利」的一場契約。
+    <header class="gradient-bg text-white py-16 md:py-24 px-6 text-center shadow-lg relative overflow-hidden">
+        <!-- Background IP Decoration -->
+        <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl font-black select-none pointer-events-none">
+            JOPTION
+        </div>
+        
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="ip-badge">OFFICIAL IP</div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">歐大選擇權教室</h1>
+            <p class="text-lg md:text-2xl opacity-90 mb-8 font-light">
+                不只是金融商品，它是關於「未來權利」的一場契約 —— <span class="font-bold italic">Joption</span>
             </p>
-            <a href="#definition" class="bg-white text-blue-600 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-50 transition duration-300">
-                立即解密
-            </a>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="#definition" class="bg-white text-blue-700 font-bold py-3 px-10 rounded-full shadow-xl hover:bg-blue-50 transition duration-300">
+                    立即解密
+                </a>
+            </div>
         </div>
     </header>
 
     <!-- Basic Definition Section -->
     <section id="definition" class="py-16 px-6 max-w-5xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold mb-4 text-blue-900">一句話懂選擇權</h2>
+        <div class="text-center mb-12">
+            <div class="text-blue-600 font-bold text-sm tracking-widest mb-2">BRAND BY JOPTION</div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 text-slate-900">一句話懂選擇權</h2>
             <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                選擇權（Options）是一種金融衍生性商品，給予買方在「未來某個時間」以「約定好的價格」，買入或賣出某種資產的<span class="text-blue-600 font-bold underline">權利</span>。
+                選擇權（Options）是一種金融衍生性商品，給予買方在「未來某個時間」以「約定好的價格」，買入或賣出某種資產的<span class="text-blue-600 font-bold border-b-2 border-blue-200">權利</span>。
             </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-2xl shadow-md border-l-8 border-blue-500 card-hover">
-                <h3 class="text-xl font-bold mb-4 flex items-center">
-                    <span class="mr-2">💡</span> 核心邏輯：買方 vs 賣方
+        <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-blue-500 card-hover">
+                <h3 class="text-xl font-bold mb-5 flex items-center text-slate-800">
+                    <span class="bg-blue-100 p-2 rounded-lg mr-3">💡</span> 核心邏輯：買方 vs 賣方
                 </h3>
                 <ul class="space-y-4">
                     <li class="flex items-start">
-                        <strong class="text-blue-600 mr-2">買方 (Buyer)：</strong> 
-                        <span>支付一筆小錢（權利金），獲得「做或不做」的權利。</span>
+                        <span class="w-2 h-2 mt-2 bg-blue-500 rounded-full mr-3 shrink-0"></span>
+                        <div>
+                            <strong class="text-blue-600">買方 (Buyer)：</strong> 
+                            <p class="text-sm md:text-base text-gray-600">支付一筆小錢（權利金），獲得「做或不做」的權利。</p>
+                        </div>
                     </li>
                     <li class="flex items-start">
-                        <strong class="text-red-600 mr-2">賣方 (Seller)：</strong> 
-                        <span>收取這筆小錢，但有「必須配合」的義務。</span>
+                        <span class="w-2 h-2 mt-2 bg-red-500 rounded-full mr-3 shrink-0"></span>
+                        <div>
+                            <strong class="text-red-600">賣方 (Seller)：</strong> 
+                            <p class="text-sm md:text-base text-gray-600">收取這筆小錢，但有「必須配合」的義務。</p>
+                        </div>
                     </li>
                 </ul>
             </div>
-            <div class="bg-blue-900 text-white p-8 rounded-2xl shadow-md card-hover">
-                <h3 class="text-xl font-bold mb-4">🔑 必備四要素</h3>
-                <ul class="space-y-2">
-                    <li>🎯 <strong>標的物：</strong> 如台積電股票、大盤指數。</li>
-                    <li>💰 <strong>履約價：</strong> 雙方約定好買賣的價格。</li>
-                    <li>⏳ <strong>到期日：</strong> 權利可以行使的最後期限。</li>
-                    <li>💵 <strong>權利金：</strong> 買這項權利要付出的成本。</li>
-                </ul>
+            <div class="bg-slate-800 text-white p-8 rounded-2xl shadow-lg card-hover">
+                <h3 class="text-xl font-bold mb-5 flex items-center">
+                    <span class="bg-slate-700 p-2 rounded-lg mr-3">🔑</span> 選擇權必備四要素
+                </h3>
+                <div class="grid grid-cols-1 gap-4 text-sm md:text-base">
+                    <div class="flex justify-between border-b border-slate-700 pb-2">
+                        <span class="text-slate-400">🎯 標的物</span>
+                        <span class="font-medium">如台積電、大盤指數</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2">
+                        <span class="text-slate-400">💰 履約價</span>
+                        <span class="font-medium">雙方約定的買賣價</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2">
+                        <span class="text-slate-400">⏳ 到期日</span>
+                        <span class="font-medium">行使權利的最後期限</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">💵 權利金</span>
+                        <span class="font-medium">買入權利的初始成本</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Life Example Section -->
-    <section class="bg-gray-100 py-16 px-6">
+    <section class="bg-slate-100 py-16 px-6">
         <div class="max-w-5xl mx-auto">
-            <h2 class="text-3xl font-bold mb-12 text-center text-blue-900">生活中的選擇權</h2>
+            <h2 class="text-3xl font-bold mb-12 text-center text-slate-900">生活中的選擇權案例</h2>
             
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
                 <!-- Example 1: Real Estate (Call Option) -->
-                <div>
-                    <h3 class="text-2xl font-bold text-blue-700 mb-4">案例一：買預售屋 (Call Option)</h3>
-                    <div class="bg-white p-6 rounded-xl shadow-sm leading-relaxed">
-                        <p class="mb-4">
-                            小明看上一間 1000 萬的預售屋，但他現在錢不夠。建商跟小明簽了一個契約：小明先付 <strong>20 萬定金</strong>，保證在一年後可以按 <strong>1000 萬</strong> 買下這間房。
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center mb-4">
+                        <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-2 uppercase">Call</span>
+                        <h3 class="text-2xl font-bold text-blue-700">買預售屋</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm leading-relaxed flex-grow">
+                        <p class="mb-4 text-gray-700">
+                            小明看上一間 1000 萬的預售屋。建商跟小明簽了一個契約：小明先付 <strong>20 萬定金</strong>，保證在一年後可以按 <strong>1000 萬</strong> 買下這間房。
                         </p>
-                        <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
-                            <li><strong>如果一年後房價漲到 1200 萬：</strong> 小明行使權利，用 1000 萬買，現賺 180 萬。</li>
-                            <li><strong>如果一年後房價跌到 800 萬：</strong> 小明放棄 20 萬定金，不買了。</li>
-                        </ul>
-                        <p class="mt-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            這就是「買入看漲選擇權」(Buy Call)。
+                        <div class="bg-blue-50 p-4 rounded-lg text-sm text-gray-700">
+                            <ul class="space-y-2">
+                                <li class="flex gap-2">✅ <strong>漲到 1200 萬：</strong> 用原價買入，現賺 180 萬。</li>
+                                <li class="flex gap-2">❌ <strong>跌到 800 萬：</strong> 放棄 20 萬，不再買入。</li>
+                            </ul>
+                        </div>
+                        <p class="mt-4 text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                            Buy Call (買入看漲選擇權)
                         </p>
                     </div>
                 </div>
                 <!-- Example 2: Insurance (Put Option) -->
-                <div>
-                    <h3 class="text-2xl font-bold text-red-700 mb-4">案例二：車險 (Put Option)</h3>
-                    <div class="bg-white p-6 rounded-xl shadow-sm leading-relaxed">
-                        <p class="mb-4">
-                            老張有一台價值 100 萬的愛車，他怕出車禍損失慘重，所以付了 <strong>3 萬保費</strong> 給保險公司。合約規定：若發生全損，保險公司賠給老張 <strong>100 萬</strong>。
+                <div class="flex flex-col h-full mt-8 md:mt-0">
+                    <div class="flex items-center mb-4">
+                        <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2 uppercase">Put</span>
+                        <h3 class="text-2xl font-bold text-red-700">汽車保險</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm leading-relaxed flex-grow">
+                        <p class="mb-4 text-gray-700">
+                            老張付了 <strong>3 萬保費</strong> 給保險公司。合約規定：若發生車禍全損，保險公司賠給老張 <strong>100 萬</strong>（相當於用 100 萬買下這台廢鐵）。
                         </p>
-                        <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
-                            <li><strong>如果車子撞爛了：</strong> 老張行使權利，「賣出」他的爛車，換回 100 萬。</li>
-                            <li><strong>如果今年平安無事：</strong> 老張損失 3 萬保費，換來一年的安心。</li>
-                        </ul>
-                        <p class="mt-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            這就是「買入看跌選擇權」(Buy Put)。
+                        <div class="bg-red-50 p-4 rounded-lg text-sm text-gray-700">
+                            <ul class="space-y-2">
+                                <li class="flex gap-2">✅ <strong>車子撞爛了：</strong> 行使權利，「賣出」爛車領回 100 萬。</li>
+                                <li class="flex gap-2">❌ <strong>平安無事：</strong> 損失 3 萬保費，換來一年的安心。</li>
+                            </ul>
+                        </div>
+                        <p class="mt-4 text-[10px] font-bold text-red-400 uppercase tracking-widest">
+                            Buy Put (買入看跌選擇權)
                         </p>
                     </div>
                 </div>
@@ -116,62 +166,45 @@
 
     <!-- Comparison Table -->
     <section class="py-16 px-6 max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold mb-8 text-center">買方與賣方的命運</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse bg-white shadow-xl rounded-lg overflow-hidden">
+        <h2 class="text-3xl font-bold mb-8 text-center text-slate-900 underline decoration-blue-500 underline-offset-8">買方與賣方的命運</h2>
+        <div class="overflow-x-auto rounded-xl shadow-2xl border border-gray-200">
+            <table class="w-full text-left border-collapse bg-white min-w-[500px]">
                 <thead>
-                    <tr class="bg-blue-600 text-white">
-                        <th class="p-4">對象</th>
-                        <th class="p-4">角色</th>
-                        <th class="p-4">風險</th>
-                        <th class="p-4">獲利空間</th>
+                    <tr class="bg-slate-900 text-white">
+                        <th class="p-5">角色類型</th>
+                        <th class="p-5">核心屬性</th>
+                        <th class="p-5">風險承受</th>
+                        <th class="p-5">潛在獲利</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                    <tr class="border-b">
-                        <td class="p-4 font-bold text-blue-600">買方 (Buyer)</td>
-                        <td class="p-4">權利的主人</td>
-                        <td class="p-4">有限 (賠掉權利金)</td>
-                        <td class="p-4">無限 (理論上)</td>
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="p-5 font-bold text-blue-600">選擇權買方</td>
+                        <td class="p-5">權利的主人</td>
+                        <td class="p-5 text-sm text-gray-500">有限 (權利金)</td>
+                        <td class="p-5 text-sm font-semibold text-green-600">理論無限</td>
                     </tr>
-                    <tr>
-                        <td class="p-4 font-bold text-red-600">賣方 (Seller)</td>
-                        <td class="p-4">義務的承擔者</td>
-                        <td class="p-4">無限 (理論上)</td>
-                        <td class="p-4">有限 (賺到權利金)</td>
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-5 font-bold text-red-600">選擇權賣方</td>
+                        <td class="p-5">義務的承擔者</td>
+                        <td class="p-5 text-sm font-semibold text-red-500">理論無限</td>
+                        <td class="p-5 text-sm text-gray-500">有限 (權利金)</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <p class="mt-6 text-center text-gray-500 italic">
-            * 就像保險公司（賣方）雖然平常賺保費，但一旦出事（大波動）要賠很多。
-        </p>
-    </section>
-
-    <!-- Call to Action -->
-    <section class="bg-blue-50 py-16 px-6 text-center">
-        <h2 class="text-2xl font-bold mb-4">準備好開始交易了嗎？</h2>
-        <p class="mb-8">別急，我們先了解什麼是「時間價值」與「內含價值」。</p>
-        <button id="notifyBtn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition">
-            訂閱下一章：進階策略教學
-        </button>
-        <div id="message" class="mt-4 text-green-600 font-bold hidden text-sm">
-            已成功訂閱！請留意您的收件匣。
+        <div class="mt-8 flex items-start bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+            <span class="mr-3 mt-1">⚠️</span>
+            <p class="text-sm text-yellow-800 leading-relaxed">
+                <strong>歐大提醒：</strong> 賣方就像保險公司，雖然平時穩定賺取保費（權利金），但一旦市場發生劇烈波動（黑天鵝），可能面臨極大的履約賠償風險。
+            </p>
         </div>
     </section>
 
-    <footer class="py-8 bg-gray-900 text-gray-400 text-center text-sm">
-        <p>© 2026 選擇權大師 Options Master - 金融教育僅供參考，投資有風險</p>
+    <footer class="py-10 bg-white border-t border-gray-100 text-gray-400 text-center text-sm">
+        <div class="mb-4 font-bold text-slate-600">JOPTION | 歐大選擇權教室</div>
+        <p>© 2026 Joption Academy - 金融教育僅供參考，投資有風險，操作需謹慎</p>
     </footer>
 
-    <script>
-        document.getElementById('notifyBtn').addEventListener('click', function() {
-            const msg = document.getElementById('message');
-            msg.classList.remove('hidden');
-            this.innerText = '已訂閱';
-            this.disabled = true;
-            this.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-    </script>
 </body>
 </html>

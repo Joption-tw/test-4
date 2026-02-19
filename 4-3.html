@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認識 Theta：時間衰減 | 歐大選擇權教室 JOPTION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* 普利風卡通風格自訂 CSS */
+        :root {
+            --c-bg: #FFF5E1;
+            --c-main: #FF8A5B;
+            --c-accent: #FFC947;
+            --c-dark: #5C4033;
+            --c-green: #A8E6CF;
+            --c-red: #FFB7B2;
+        }
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background-color: var(--c-bg);
+            color: var(--c-dark);
+            /* 點點背景增加手工毛氈感 */
+            background-image: radial-gradient(#FFC947 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .cartoon-border {
+            border: 4px solid var(--c-dark);
+            border-radius: 1.5rem;
+        }
+        
+        .cartoon-shadow {
+            box-shadow: 6px 6px 0px var(--c-accent);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .cartoon-shadow:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--c-accent);
+        }
+
+        .cartoon-shadow-main {
+            box-shadow: 6px 6px 0px var(--c-main);
+        }
+
+        /* 互動拉桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -12px;
+            border: 4px solid var(--c-dark);
+            box-shadow: 0 4px 0 var(--c-main);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF8A5B"><circle cx="12" cy="12" r="6"/></svg>');
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: var(--c-accent);
+            border-radius: 10px;
+            border: 3px solid var(--c-dark);
+        }
+
+        .bounce-anim {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <!-- 導覽列 / 品牌標頭 -->
+    <header class="w-full max-w-4xl bg-white cartoon-border cartoon-shadow p-4 mb-8 flex justify-center items-center relative z-10">
+        <div class="flex items-center gap-3">
+            <div class="text-4xl">🐹</div>
+            <div>
+                <h1 class="text-2xl font-black text-[#5C4033] tracking-wider">歐大選擇權教室</h1>
+                <p class="text-sm font-bold text-[#FF8A5B]">JOPTION ACADEMY</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要內容區 -->
+    <main class="w-full max-w-4xl flex-grow flex flex-col gap-8">
+        
+        <!-- 標題介紹區 -->
+        <section class="bg-white cartoon-border cartoon-shadow p-6 md:p-10 relative overflow-hidden">
+            <div class="absolute top-[-20px] right-[-20px] text-8xl opacity-20 transform rotate-12">⏰</div>
+            <h2 class="text-3xl md:text-4xl font-black mb-4 text-[#FF8A5B] flex items-center gap-3">
+                <span>什麼是 Theta (θ)？</span>
+            </h2>
+            <p class="text-lg md:text-xl font-bold leading-relaxed mb-4">
+                嗨！在選擇權的世界裡，有一隻隱形的小怪獸，我們叫牠 <span class="text-[#FF8A5B] bg-[#FFF5E1] px-2 py-1 rounded-lg cartoon-border border-2">Theta</span>。
+            </p>
+            <p class="text-lg leading-relaxed font-semibold">
+                Theta 代表的是**「時間衰減」**。想像你買了一顆冰淇淋🍦，如果你不趕快吃掉，它就會隨著時間慢慢融化。選擇權的「權利金」就像這顆冰淇淋，只要時間一天一天過去，它的價值就會不斷流失。
+            </p>
+        </section>
+
+        <!-- 互動圖表區 (核心亮點) -->
+        <section class="bg-[#A8E6CF] cartoon-border cartoon-shadow-main p-6 md:p-10 flex flex-col items-center text-center">
+            <h3 class="text-2xl font-black mb-2 flex items-center gap-2">
+                🎮 互動體驗：時間怪獸的魔法
+            </h3>
+            <p class="font-bold mb-6 text-[#5C4033]">
+                試著拖曳下方的時間軸，看看隨著「到期日」逼近，選擇權的價值會發生什麼事？
+            </p>
+
+            <!-- 數據顯示面板 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-6 w-full">
+                <div class="bg-white cartoon-border px-6 py-4 flex-1 min-w-[140px]">
+                    <div class="text-sm font-bold text-gray-500">距離到期日</div>
+                    <div class="text-3xl font-black text-[#FF8A5B]" id="daysDisplay">14 天</div>
+                </div>
+                <div class="bg-white cartoon-border px-6 py-4 flex-1 min-w-[140px]">
+                    <div class="text-sm font-bold text-gray-500">選擇權價值 (冰淇淋大小)</div>
+                    <div class="text-3xl font-black text-[#5C4033]" id="valueDisplay">$100.0</div>
+                </div>
+                <div class="bg-white cartoon-border px-6 py-4 flex-1 min-w-[140px]">
+                    <div class="text-sm font-bold text-gray-500">今日流失 (Theta)</div>
+                    <div class="text-3xl font-black text-red-500" id="thetaDisplay">-$3.7</div>
+                </div>
+            </div>
+
+            <!-- 動態視覺圖示 -->
+            <div class="text-6xl mb-4 bounce-anim" id="visualIcon">🍦</div>
+
+            <!-- 時間軸拉桿 -->
+            <div class="w-full max-w-2xl mb-8 relative">
+                <input type="range" id="timeSlider" min="0" max="14" value="0">
+                <div class="flex justify-between text-sm font-bold mt-2 text-[#5C4033]">
+                    <span>買進 (剩 14 天)</span>
+                    <span>到期日 (剩 0 天)</span>
+                </div>
+            </div>
+
+            <!-- Canvas 圖表 -->
+            <div class="w-full max-w-2xl bg-white cartoon-border p-4 relative">
+                <h4 class="font-black text-sm text-gray-400 absolute top-6 left-6">價值曲線 (非線性衰減)</h4>
+                <canvas id="decayChart" width="600" height="250" class="w-full h-auto"></canvas>
+                <p class="text-sm font-bold mt-4 text-[#FF8A5B]">
+                    💡 歐大筆記：有發現嗎？時間流失的速度不是直線的！<br>越靠近到期日，Theta 怪獸吃掉價值的速度會「越來越快」！
+                </p>
+            </div>
+        </section>
+
+        <!-- 買方與賣方的視角 (雙欄) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 買方視角 -->
+            <div class="bg-[#FFB7B2] cartoon-border cartoon-shadow p-6 flex flex-col items-center text-center">
+                <div class="text-5xl mb-3">💦</div>
+                <h3 class="text-2xl font-black mb-3">對「買方」來說</h3>
+                <h4 class="text-xl font-bold text-red-700 bg-white/50 px-3 py-1 rounded-full mb-4">時間是敵人 👿</h4>
+                <p class="font-bold text-[#5C4033] text-left">
+                    當你買進選擇權（Buy Call / Buy Put），你就付出了權利金。每天醒來，Theta 都會無情地扣掉你的資產價值。<br><br>
+                    <strong>策略：</strong>買方必須期待行情出現「大波動」，而且要「快」，才能打敗時間怪獸！
+                </p>
+            </div>
+
+            <!-- 賣方視角 -->
+            <div class="bg-[#FFC947] cartoon-border cartoon-shadow p-6 flex flex-col items-center text-center">
+                <div class="text-5xl mb-3">💰</div>
+                <h3 class="text-2xl font-black mb-3">對「賣方」來說</h3>
+                <h4 class="text-xl font-bold text-green-700 bg-white/50 px-3 py-1 rounded-full mb-4">時間是朋友 🥰</h4>
+                <p class="font-bold text-[#5C4033] text-left">
+                    當你賣出選擇權（Sell Call / Sell Put），你是先收走別人的權利金。只要時間流逝，別人的冰淇淋融化，就變成你的利潤！<br><br>
+                    <strong>策略：</strong>賣方喜歡「平靜無波」的市場。只要行情盤整，每天躺著賺取時間價值。
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="w-full max-w-4xl mt-12 bg-white cartoon-border p-6 text-center font-bold text-[#5C4033]">
+        <div class="text-3xl mb-2">🐹🚗</div>
+        <p class="text-lg">JOPTION | 歐大選擇權教室</p>
+        <p class="text-sm text-gray-500 mt-2">© 2026 Joption Academy - 金融教育僅供參考，投資有風險，操作需謹慎</p>
+    </footer>
+
+    <!-- 互動邏輯腳本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('timeSlider');
+            const daysDisplay = document.getElementById('daysDisplay');
+            const valueDisplay = document.getElementById('valueDisplay');
+            const thetaDisplay = document.getElementById('thetaDisplay');
+            const visualIcon = document.getElementById('visualIcon');
+            const canvas = document.getElementById('decayChart');
+            const ctx = canvas.getContext('2d');
+
+            const MAX_DAYS = 14;
+            const INITIAL_VALUE = 100;
+
+            // 選擇權時間價值衰減公式 (模擬非線性: Value ∝ √Days)
+            function calculateValue(daysLeft) {
+                return INITIAL_VALUE * Math.sqrt(daysLeft / MAX_DAYS);
+            }
+
+            // Theta 近似值 (每日流失量)
+            function calculateTheta(daysLeft) {
+                if (daysLeft === 0) return 0;
+                const todayVal = calculateValue(daysLeft);
+                const tomorrowVal = calculateValue(Math.max(0, daysLeft - 1));
+                return todayVal - tomorrowVal;
+            }
+
+            function drawChart(currentPassedDays) {
+                const width = canvas.width;
+                const height = canvas.height;
+                const padding = 40;
+
+                // 清除畫布
+                ctx.clearRect(0, 0, width, height);
+
+                // 繪製格線
+                ctx.strokeStyle = '#E2E8F0';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                for (let i = 0; i <= 4; i++) {
+                    const y = padding + i * ((height - 2 * padding) / 4);
+                    ctx.beginPath();
+                    ctx.moveTo(padding, y);
+                    ctx.lineTo(width - padding, y);
+                    ctx.stroke();
+                }
+                ctx.setLineDash([]);
+
+                // 繪製衰減曲線
+                ctx.beginPath();
+                ctx.strokeStyle = '#FFC947';
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                const points = [];
+                for (let dayPassed = 0; dayPassed <= MAX_DAYS; dayPassed++) {
+                    const daysLeft = MAX_DAYS - dayPassed;
+                    const val = calculateValue(daysLeft);
+                    
+                    const x = padding + (dayPassed / MAX_DAYS) * (width - 2 * padding);
+                    const y = (height - padding) - (val / INITIAL_VALUE) * (height - 2 * padding);
+                    points.push({x, y});
+
+                    if (dayPassed === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // 繪製當前位置的點
+                const currentDaysLeft = MAX_DAYS - currentPassedDays;
+                const currentVal = calculateValue(currentDaysLeft);
+                const currentX = padding + (currentPassedDays / MAX_DAYS) * (width - 2 * padding);
+                const currentY = (height - padding) - (currentVal / INITIAL_VALUE) * (height - 2 * padding);
+
+                // 畫大圓點外框
+                ctx.beginPath();
+                ctx.fillStyle = '#FF8A5B';
+                ctx.strokeStyle = '#5C4033';
+                ctx.lineWidth = 3;
+                ctx.arc(currentX, currentY, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // 坐標軸標籤
+                ctx.fillStyle = '#5C4033';
+                ctx.font = 'bold 14px Nunito';
+                ctx.textAlign = 'center';
+                ctx.fillText('買進 (14天)', padding, height - 10);
+                ctx.fillText('到期 (0天)', width - padding, height - 10);
+            }
+
+            function updateUI() {
+                const passedDays = parseInt(slider.value);
+                const daysLeft = MAX_DAYS - passedDays;
+                const val = calculateValue(daysLeft);
+                const theta = calculateTheta(daysLeft);
+
+                // 更新數字
+                daysDisplay.innerText = `${daysLeft} 天`;
+                valueDisplay.innerText = `$${val.toFixed(1)}`;
+                
+                if (daysLeft === 0) {
+                    thetaDisplay.innerText = `$0.0`;
+                } else {
+                    thetaDisplay.innerText = `-$${theta.toFixed(1)}`;
+                }
+
+                // 更新表情符號大小與圖示 (冰淇淋融化或胡蘿蔔被吃掉)
+                const scale = 0.5 + (val / INITIAL_VALUE) * 0.8;
+                visualIcon.style.transform = `scale(${scale})`;
+                
+                if (daysLeft > 9) {
+                    visualIcon.innerText = '🍦';
+                } else if (daysLeft > 4) {
+                    visualIcon.innerText = '🍧'; // 開始融化
+                } else if (daysLeft > 0) {
+                    visualIcon.innerText = '🫠'; // 快沒了
+                } else {
+                    visualIcon.innerText = '👻'; // 歸零變成靈魂
+                }
+
+                drawChart(passedDays);
+            }
+
+            // 綁定事件
+            slider.addEventListener('input', updateUI);
+            
+            // 初始化
+            updateUI();
+        });
+    </script>
+</body>
+</html>

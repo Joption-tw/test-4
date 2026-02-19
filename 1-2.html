@@ -3,217 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>選擇權教室：權利與義務的對稱性</title>
+    <meta name="author" content="歐大選擇權教室">
+    <meta name="brand" content="Joption">
+    <title>歐大選擇權教室 | 領略 Joption 的交易美學</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        :root {
+            --brand-primary: #4f46e5;
+            --brand-secondary: #06b6d4;
+        }
+
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #f8fafc;
+            scroll-behavior: smooth;
         }
-        .chart-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            padding: 24px;
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
-        .axis { stroke: #64748b; stroke-width: 2.5; }
-        .grid-line { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 5,5; }
-        .line-long { stroke: #059669; stroke-width: 5; fill: none; stroke-linecap: round; }
-        .line-short { stroke: #dc2626; stroke-width: 5; fill: none; stroke-linecap: round; }
-        .chart-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; }
-        .axis-label { fill: #475569; font-size: 16px; }
-        .profit-label { fill: #065f46; font-size: 14px; }
-        .loss-label { fill: #991b1b; font-size: 14px; }
+
+        .chart-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .chart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .ip-tag {
+            background: linear-gradient(90deg, #4f46e5, #06b6d4);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            display: inline-block;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* 損益圖動畫 */
+        .profit-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 2.5s forwards cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* 漸層文字 */
+        .text-gradient {
+            background: linear-gradient(to right, #6366f1, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 行動裝置選單動畫 */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.active {
+            max-height: 300px;
+            padding: 1rem 0;
+        }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-900">
 
-    <!-- Header -->
-    <header class="bg-indigo-900 text-white py-12 px-6 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">選擇權核心：權利與義務的對稱性</h1>
-        <p class="text-indigo-200 text-xl max-w-2xl mx-auto">
-            理解「買方」與「賣方」之間那道不平等的界線，是通與高手之路的第一步。
-        </p>
+    <!-- 導覽列 -->
+    <nav class="sticky top-0 z-50 glass-morphism">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 shrink-0">
+                        <i data-lucide="trending-up" class="text-white w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg sm:text-xl font-black tracking-tighter text-slate-900 block leading-none">歐大選擇權教室</span>
+                            <span class="ip-tag hidden sm:inline-block">Joption Official</span>
+                        </div>
+                        <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">The Art of Options</span>
+                    </div>
+                </div>
+                
+                <!-- 桌面版導覽 -->
+                <div class="hidden md:flex space-x-8 lg:space-x-10 font-bold text-sm uppercase tracking-wide">
+                    <a href="#concept" class="text-slate-500 hover:text-indigo-600 transition-colors">核心概念</a>
+                    <a href="#visual" class="text-slate-500 hover:text-indigo-600 transition-colors">損益視覺化</a>
+                    <a href="#compare" class="text-slate-500 hover:text-indigo-600 transition-colors">對照表</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button class="hidden sm:block bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-md">
+                        加入社群
+                    </button>
+                    <!-- 手機版選單按鈕 -->
+                    <button id="menu-toggle" class="md:hidden text-slate-600 p-2">
+                        <i data-lucide="menu" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 手機版下拉選單 -->
+            <div id="mobile-menu" class="md:hidden flex flex-col space-y-4 font-bold text-sm px-2">
+                <a href="#concept" class="text-slate-500 hover:text-indigo-600 py-2 border-b border-slate-50">核心概念</a>
+                <a href="#visual" class="text-slate-500 hover:text-indigo-600 py-2 border-b border-slate-50">損益視覺化</a>
+                <a href="#compare" class="text-slate-500 hover:text-indigo-600 py-2">對照表</a>
+                <button class="sm:hidden bg-slate-900 text-white px-6 py-3 rounded-xl text-center">加入社群</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主視覺區 -->
+    <header class="relative bg-white pt-16 pb-24 md:pt-24 md:pb-32 px-6 overflow-hidden border-b border-slate-100">
+        <div class="absolute top-0 right-0 w-full md:w-1/2 h-full bg-slate-50 -skew-x-0 md:-skew-x-12 translate-x-0 md:translate-x-32 z-0 opacity-50 md:opacity-100"></div>
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="max-w-3xl text-center md:text-left">
+                <div class="ip-tag mb-6 shadow-sm shadow-indigo-100">Joption Official Module</div>
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 mb-6 md:mb-8 leading-tight">
+                    交易的<span class="text-gradient">不對稱</span>美學<br>掌握權利金攻防
+                </h1>
+                <p class="text-slate-500 text-base sm:text-lg md:text-xl leading-relaxed mb-10 md:12 font-medium px-4 md:px-0">
+                    在歐大選擇權教室，我們相信獲利是對「機率」與「賠率」計算後的必然。透過 Joption 數據，建立屬於您的致勝模型。
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                    <a href="#concept" class="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center">
+                        開啟學習模組 <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+                    </a>
+                    <div class="flex items-center gap-3 px-6 py-4 text-slate-400 font-bold cursor-pointer hover:text-indigo-500 transition-colors">
+                        <i data-lucide="play-circle" class="w-6 h-6"></i> 觀看導引
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 py-12">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
         
-        <!-- Section 1: Concept Introduction -->
-        <section class="mb-16">
-            <div class="flex flex-col md:flex-row items-center gap-12">
-                <div class="flex-1">
-                    <h2 class="text-3xl font-bold mb-6 flex items-center">
-                        <span class="bg-indigo-600 text-white p-2 rounded-lg mr-3 shadow-lg">
-                            <i data-lucide="info"></i>
-                        </span>
-                        什麼是不對稱性？
-                    </h2>
-                    <p class="text-lg leading-relaxed text-slate-600 mb-4">
-                        在法律契約中，雙方通常是對等的。但在選擇權的世界裡，**買方支付金錢來「購買選擇權」**，而**賣方收取金錢來「承擔義務」**。
+        <!-- 核心概念 Section -->
+        <section id="concept" class="mb-24 md:32">
+            <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-12 md:mb-16 gap-6 text-center lg:text-left">
+                <div class="max-w-2xl">
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">買方與賣方的靈魂博弈</h2>
+                    <p class="text-lg md:text-xl text-slate-500 leading-relaxed font-medium">
+                        選擇權最迷人之處在於它的<span class="text-indigo-600 font-bold underline decoration-indigo-200 underline-offset-4">非線性損益結構</span>。這不像股票買了就漲跌一比一，在這裡，您可以根據預期隨時調整身份。
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                        <div class="p-6 border-l-8 border-emerald-500 bg-white shadow-sm rounded-r-xl">
-                            <h3 class="font-bold text-emerald-800 text-2xl mb-2">買方 (Buyer)</h3>
-                            <p class="text-emerald-700 text-lg">支付權利金，擁有執行的**權利**。<br><span class="font-bold text-red-600 underline">虧損有限</span>，獲利無限。</p>
+                </div>
+                <div class="hidden lg:block text-right">
+                    <span class="text-6xl xl:text-7xl font-black text-slate-100 uppercase tracking-tighter">Psychology</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <!-- 買方卡片 -->
+                <div class="group p-8 md:p-10 bg-white border border-slate-100 rounded-[2rem] md:rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:border-indigo-100 transition-all duration-500">
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                        <i data-lucide="target" class="w-8 h-8"></i>
+                    </div>
+                    <h4 class="font-black text-slate-900 text-xl md:text-2xl mb-4 italic">買方 (Buyer)：獵人模式</h4>
+                    <p class="text-slate-500 leading-relaxed text-base md:text-lg">
+                        支付權利金換取爆發性獲利的權利。像是一次精準的伏擊，等待波動率爆發的瞬間。在歐大選擇權教室，我們稱之為「以小搏大」。
+                    </p>
+                    <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-50 flex flex-wrap gap-2">
+                        <span class="px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase">風險有限</span>
+                        <span class="px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase">利潤無窮</span>
+                    </div>
+                </div>
+
+                <!-- 賣方卡片 -->
+                <div class="group p-8 md:p-10 bg-white border border-slate-100 rounded-[2rem] md:rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:border-indigo-100 transition-all duration-500">
+                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                        <i data-lucide="landmark" class="w-8 h-8"></i>
+                    </div>
+                    <h4 class="font-black text-slate-900 text-xl md:text-2xl mb-4 italic">賣方 (Seller)：莊家模式</h4>
+                    <p class="text-slate-500 leading-relaxed text-base md:text-lg">
+                        收取權利金並承擔履約義務。像是在經營一家保險公司，透過大數法則穩健收租。利用 Joption 數據分析 IV 變化，增加勝率。
+                    </p>
+                    <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-50 flex flex-wrap gap-2">
+                        <span class="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase">高勝率</span>
+                        <span class="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase">時間之友</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 損益圖表 Section -->
+        <section id="visual" class="mb-24 md:32">
+            <div class="text-center mb-16 md:mb-20">
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">損益結構動態演示</h2>
+                <div class="w-16 h-1.5 bg-indigo-600 mx-auto rounded-full mb-6"></div>
+                <p class="text-slate-500 font-medium">視覺化是理解選擇權邏輯最快的路徑</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+                <!-- Buy Call -->
+                <div class="chart-card bg-white p-6 sm:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-8 md:mb-10">
+                        <div>
+                            <span class="text-[10px] font-black tracking-widest text-emerald-500 uppercase bg-emerald-50 px-3 py-1 rounded-md">Aggressive Strategy</span>
+                            <h3 class="text-2xl md:text-3xl font-black mt-3">買進看漲 <span class="text-emerald-500">Buy Call</span></h3>
                         </div>
-                        <div class="p-6 border-l-8 border-red-500 bg-white shadow-sm rounded-r-xl">
-                            <h3 class="font-bold text-red-800 text-2xl mb-2">賣方 (Seller)</h3>
-                            <p class="text-red-700 text-lg">收取權利金，承擔履約的**義務**。<br>獲利有限，<span class="font-bold text-red-600 underline">風險無限</span>。</p>
+                    </div>
+                    
+                    <svg viewBox="0 0 400 300" class="w-full h-auto drop-shadow-sm">
+                        <line x1="30" y1="180" x2="370" y2="180" stroke="#e2e8f0" stroke-width="2" />
+                        <line x1="50" y1="20" x2="50" y2="280" stroke="#e2e8f0" stroke-width="2" />
+                        <path d="M 50 240 L 180 240 L 350 40" class="profit-line" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round" />
+                        <circle cx="180" cy="240" r="8" fill="#10b981" class="shadow-lg" />
+                        <text x="180" y="275" text-anchor="middle" class="text-[12px] font-black fill-slate-400">履約價</text>
+                        <text x="320" y="170" class="text-[10px] font-bold fill-slate-300">標的漲幅 →</text>
+                    </svg>
+
+                    <div class="mt-8 space-y-3">
+                        <div class="flex items-center text-slate-600 font-medium text-sm md:text-base">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center mr-3 shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>
+                            </div>
+                            標的噴出時，獲利將呈幾何倍數跳升
+                        </div>
+                        <div class="flex items-center text-slate-600 font-medium text-sm md:text-base">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center mr-3 shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>
+                            </div>
+                            最大虧損僅限於支付的權利金
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sell Call -->
+                <div class="chart-card bg-white p-6 sm:p-10 rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-start mb-8 md:mb-10">
+                        <div>
+                            <span class="text-[10px] font-black tracking-widest text-red-500 uppercase bg-red-50 px-3 py-1 rounded-md">Conservative Strategy</span>
+                            <h3 class="text-2xl md:text-3xl font-black mt-3">賣出看漲 <span class="text-red-500">Sell Call</span></h3>
+                        </div>
+                    </div>
+                    
+                    <svg viewBox="0 0 400 300" class="w-full h-auto drop-shadow-sm">
+                        <line x1="30" y1="180" x2="370" y2="180" stroke="#e2e8f0" stroke-width="2" />
+                        <line x1="50" y1="20" x2="50" y2="280" stroke="#e2e8f0" stroke-width="2" />
+                        <path d="M 50 120 L 180 120 L 350 260" class="profit-line" fill="none" stroke="#ef4444" stroke-width="6" stroke-linecap="round" />
+                        <circle cx="180" cy="120" r="8" fill="#ef4444" />
+                        <text x="180" y="100" text-anchor="middle" class="text-[12px] font-black fill-slate-400">履約價</text>
+                    </svg>
+
+                    <div class="mt-8 space-y-3">
+                        <div class="flex items-center text-slate-600 font-medium text-sm md:text-base">
+                            <div class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mr-3 shrink-0">
+                                <i data-lucide="info" class="w-3 h-3 text-red-600"></i>
+                            </div>
+                            只要標的不漲破履約價，租金即落袋
+                        </div>
+                        <div class="flex items-center text-slate-600 font-medium text-sm md:text-base">
+                            <div class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center mr-3 shrink-0">
+                                <i data-lucide="alert-circle" class="w-3 h-3 text-red-600"></i>
+                            </div>
+                            需注意極端行情下的 Joption 保證金風險控制
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Section 2: Visual Charts -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-bold mb-10 text-center">圖形化說明：損益結構圖</h2>
+        <!-- 對照表 Section -->
+        <section id="compare" class="mb-24 md:32">
+            <h2 class="text-3xl md:text-4xl font-black mb-12 md:16 text-center text-slate-900 tracking-tight">Joption 深度對照分析</h2>
+            <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div class="min-w-[600px] overflow-hidden rounded-3xl shadow-2xl shadow-indigo-100/50 border border-slate-100">
+                    <table class="w-full bg-white text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-white">
+                                <th class="p-6 md:p-8 font-black uppercase tracking-widest text-[10px]">分析維度</th>
+                                <th class="p-6 md:p-8 font-black text-emerald-400 uppercase tracking-widest text-[10px]">
+                                    <div class="flex items-center gap-2">買方 (Buyer) <span class="ip-tag text-[8px] py-0.5">Active</span></div>
+                                </th>
+                                <th class="p-6 md:p-8 font-black text-indigo-400 uppercase tracking-widest text-[10px]">
+                                    <div class="flex items-center gap-2">賣方 (Seller) <span class="ip-tag text-[8px] py-0.5">Passive</span></div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 font-medium text-sm md:text-base">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6 md:p-8 font-black text-slate-400">核心本質</td>
+                                <td class="p-6 md:p-8">權利擁有者 (像是買保險)</td>
+                                <td class="p-6 md:p-8">義務承擔者 (像是開保險公司)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6 md:p-8 font-black text-slate-400">現金流向</td>
+                                <td class="p-6 md:p-8 text-red-500 font-bold">支付權利金 (淨流出)</td>
+                                <td class="p-8 text-emerald-500 font-bold text-emerald-600">收取權利金 (淨流入)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6 md:p-8 font-black text-slate-400">獲勝條件</td>
+                                <td class="p-6 md:p-8">標的需有「速度與幅度」</td>
+                                <td class="p-6 md:p-8 font-bold text-indigo-600">只要行情「不發生」即獲勝</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6 md:p-8 font-black text-slate-400">時間價值 (Theta)</td>
+                                <td class="p-6 md:p-8 text-slate-400">時間是您的敵人</td>
+                                <td class="p-6 md:p-8 text-indigo-600 font-black">時間是您的摯友</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 歐大金句 Section -->
+        <section class="bg-indigo-600 rounded-[2.5rem] md:rounded-[3.5rem] p-10 md:p-24 text-white text-center relative overflow-hidden shadow-2xl shadow-indigo-200">
+            <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl"></div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Long Call Chart -->
-                <div class="chart-container">
-                    <h3 class="text-2xl font-bold mb-6 text-emerald-700 text-center bg-emerald-50 py-2 rounded-full">買進看漲 (Long Call)</h3>
-                    <svg viewBox="0 0 400 320" class="w-full h-auto">
-                        <!-- Grid and Axes -->
-                        <line x1="40" y1="160" x2="380" y2="160" class="axis" /> <!-- X-axis -->
-                        <line x1="60" y1="40" x2="60" y2="280" class="axis" />  <!-- Y-axis -->
-                        <line x1="60" y1="210" x2="380" y2="210" class="grid-line" /> <!-- Breakeven line base -->
-                        
-                        <text x="340" y="185" class="chart-text axis-label">股價 →</text>
-                        <text x="10" y="45" class="chart-text axis-label">損益 ↑</text>
-                        
-                        <!-- Payoff Line -->
-                        <path d="M 60 210 L 200 210 L 350 60" class="line-long" />
-                        <circle cx="200" cy="210" r="7" fill="#059669" />
-                        <text x="175" y="240" class="chart-text axis-label" style="fill:#1e293b">履約價</text>
-                        
-                        <!-- Labels with solid backgrounds for clarity -->
-                        <rect x="245" y="45" width="110" height="35" rx="6" fill="#059669" />
-                        <text x="255" y="68" class="chart-text" style="fill:white; font-size:16px;">獲利無限</text>
-                        
-                        <rect x="75" y="230" width="110" height="35" rx="6" fill="#dc2626" />
-                        <text x="85" y="253" class="chart-text" style="fill:white; font-size:16px;">虧損有限</text>
-                    </svg>
-                    <p class="text-center text-slate-500 mt-4 text-sm font-medium">※ 橫軸下方代表虧損，上方代表獲利</p>
-                </div>
-
-                <!-- Short Call Chart -->
-                <div class="chart-container">
-                    <h3 class="text-2xl font-bold mb-6 text-red-700 text-center bg-red-50 py-2 rounded-full">賣出看漲 (Short Call)</h3>
-                    <svg viewBox="0 0 400 320" class="w-full h-auto">
-                        <!-- Grid and Axes -->
-                        <line x1="40" y1="160" x2="380" y2="160" class="axis" /> 
-                        <line x1="60" y1="40" x2="60" y2="280" class="axis" />
-                        <line x1="60" y1="110" x2="380" y2="110" class="grid-line" />
-                        
-                        <text x="340" y="185" class="chart-text axis-label">股價 →</text>
-                        <text x="10" y="45" class="chart-text axis-label">損益 ↑</text>
-                        
-                        <!-- Payoff Line -->
-                        <path d="M 60 110 L 200 110 L 350 260" class="line-short" />
-                        <circle cx="200" cy="110" r="7" fill="#dc2626" />
-                        <text x="175" y="90" class="chart-text axis-label" style="fill:#1e293b">履約價</text>
-                        
-                        <!-- Labels with solid backgrounds for clarity -->
-                        <rect x="75" y="45" width="110" height="35" rx="6" fill="#059669" />
-                        <text x="85" y="68" class="chart-text" style="fill:white; font-size:16px;">獲利有限</text>
-                        
-                        <rect x="245" y="240" width="110" height="35" rx="6" fill="#dc2626" />
-                        <text x="255" y="263" class="chart-text" style="fill:white; font-size:16px;">風險無限</text>
-                    </svg>
-                    <p class="text-center text-slate-500 mt-4 text-sm font-medium">※ 賣方獲利上限即為收取的權利金</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 3: Comparative Table -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-bold mb-8">深度比較表</h2>
-            <div class="overflow-x-auto shadow-xl rounded-xl">
-                <table class="w-full text-left border-collapse bg-white overflow-hidden">
-                    <thead>
-                        <tr class="bg-indigo-600 text-white text-lg">
-                            <th class="p-5">比較項目</th>
-                            <th class="p-5">買方 (Buyer / Long)</th>
-                            <th class="p-5">賣方 (Seller / Short)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200 text-lg">
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold bg-slate-50 w-1/4">角色性質</td>
-                            <td class="p-5 text-indigo-700">權利擁有者 (買保險的人)</td>
-                            <td class="p-5 text-amber-700">義務承擔者 (保險公司)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold bg-slate-50">資金往來</td>
-                            <td class="p-5 text-red-600 font-bold">支出權利金</td>
-                            <td class="p-5 text-emerald-600 font-bold">收入權利金</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold bg-slate-50">最大獲利</td>
-                            <td class="p-5 bg-emerald-50 text-emerald-800 font-extrabold text-xl">理論上無限</td>
-                            <td class="p-5">有限 (權利金)</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold bg-slate-50">最大虧損</td>
-                            <td class="p-5">有限 (權利金)</td>
-                            <td class="p-5 bg-red-50 text-red-800 font-extrabold text-xl">理論上無限</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold bg-slate-50">勝率</td>
-                            <td class="p-5 text-slate-500 italic">通常較低</td>
-                            <td class="p-5 text-indigo-600 font-bold">通常較高</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Section 4: Pro Tips -->
-        <section class="bg-gradient-to-br from-indigo-900 to-indigo-800 p-10 rounded-3xl shadow-2xl text-white">
-            <h2 class="text-3xl font-bold mb-6 flex items-center">
-                <i data-lucide="award" class="mr-3 w-8 h-8"></i> 高手心得分享
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-indigo-100 text-lg">
-                <div class="space-y-4">
-                    <p class="border-l-4 border-indigo-400 pl-4 italic">
-                        "初學者往往被「獲利無限」吸引，但高手更在意「期望值」。"
-                    </p>
-                    <p>
-                        雖然買方風險有限，但**勝率較低**。你必須要在短時間內看對方向，且波動要大到足以覆蓋時間價值的流失。
-                    </p>
-                </div>
-                <div class="space-y-4">
-                    <p>
-                        賣方雖然「風險無限」，但透過**良好的資金管理**（只動用 1/3 的保證金），賣方可以享受高勝率與收租的快感。
-                    </p>
-                    <p class="font-bold text-amber-300">
-                        核心鐵律：買方要「快且準」，賣方要「穩且恆」。
-                    </p>
-                </div>
-            </div>
+            <i data-lucide="quote" class="mx-auto mb-8 w-12 h-12 md:w-16 md:h-16 opacity-30"></i>
+            <h2 class="text-lg md:text-2xl font-bold mb-8 tracking-widest uppercase opacity-80">The Joption Philosophy</h2>
+            <blockquote class="text-2xl md:text-5xl font-black italic leading-tight mb-10 md:mb-12">
+                "買方要的是『速度與激情』，<br class="hidden md:block">賣方要的是『穩定與韌性』。"
+            </blockquote>
+            <p class="text-indigo-100 max-w-2xl mx-auto text-lg md:text-xl font-medium leading-relaxed">
+                在歐大選擇權教室，我們教您如何透過 Joption 工具管理「風險的不對稱」。記住，留在場內比贏得快更重要。
+            </p>
         </section>
 
     </main>
 
-    <footer class="bg-slate-900 text-slate-400 py-12 px-6 text-center">
-        <p class="mb-2 text-lg">© 2024 選擇權高手教學網</p>
-        <div class="flex justify-center gap-4 text-sm mt-4">
-            <span class="px-3 py-1 bg-slate-800 rounded">低風險</span>
-            <span class="px-3 py-1 bg-slate-800 rounded">高槓桿</span>
-            <span class="px-3 py-1 bg-slate-800 rounded">權利金管理</span>
+    <!-- 頁尾 -->
+    <footer class="bg-slate-50 text-slate-400 py-16 md:py-24 px-6 border-t border-slate-100">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center justify-center md:justify-start gap-3 mb-8">
+                    <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+                        <i data-lucide="trending-up" class="text-white w-5 h-5"></i>
+                    </div>
+                    <span class="text-xl font-black text-slate-900">歐大選擇權教室</span>
+                </div>
+                <p class="text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
+                    推廣正確的選擇權交易邏輯，結合 Joption 數據驅動分析，讓每位交易者都能掌握風險美學。
+                </p>
+            </div>
+            <div>
+                <h4 class="text-slate-900 font-black mb-6 uppercase tracking-widest text-[10px]">學習模組</h4>
+                <ul class="space-y-4 font-bold text-sm">
+                    <li><a href="#" class="hover:text-indigo-600 transition">基礎邏輯</a></li>
+                    <li><a href="#" class="hover:text-indigo-600 transition">Joption 工具</a></li>
+                    <li><a href="#" class="hover:text-indigo-600 transition">實戰策略</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-slate-900 font-black mb-6 uppercase tracking-widest text-[10px]">社群與支持</h4>
+                <ul class="space-y-4 font-bold text-sm">
+                    <li><a href="#" class="hover:text-indigo-600 transition">官方 LINE</a></li>
+                    <li><a href="#" class="hover:text-indigo-600 transition">常見問題</a></li>
+                    <li><a href="#" class="hover:text-indigo-600 transition">軟體訂閱</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto mt-20 pt-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-xs font-bold">© 2024 歐大選擇權教室. All Rights Reserved.</p>
+            <div class="flex gap-4">
+                <span class="px-3 py-1 bg-white border border-slate-200 rounded-md text-[8px] font-black uppercase text-slate-500">Joption Tech</span>
+                <span class="px-3 py-1 bg-white border border-slate-200 rounded-md text-[8px] font-black uppercase text-slate-500">Education Only</span>
+            </div>
         </div>
     </footer>
 
     <script>
-        window.addEventListener('load', function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
+        lucide.createIcons();
+
+        // 行動裝置選單控制
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            const isActive = mobileMenu.classList.contains('active');
+            menuIcon.setAttribute('data-lucide', isActive ? 'x' : 'menu');
+            lucide.createIcons();
+        });
+
+        // 導覽列捲動效果
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-xl', 'bg-white/95');
+                nav.classList.remove('bg-white/85');
+            } else {
+                nav.classList.remove('shadow-xl', 'bg-white/95');
+                nav.classList.add('bg-white/85');
             }
+        });
+
+        // 點擊連結關閉手機選單
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                menuIcon.setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            });
         });
     </script>
 </body>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權時間價值的流逝規律 | Theta Decay</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            light: '#f8fafc',
+                            accent: '#3b82f6',
+                            danger: '#ef4444',
+                            success: '#10b981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .ip-tag {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 0 2px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased">
+
+    <!-- Header / Nav -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white font-bold text-lg">θ</div>
+                <h1 class="text-lg font-bold text-slate-900 tracking-tight">OptionAlpha <span class="text-slate-400 font-light">Edu</span></h1>
+            </div>
+            <div class="text-xs text-slate-400 border border-slate-200 px-2 py-1 rounded ip-tag bg-slate-50">
+                IP: CORE-THETA-V2
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- Hero Section -->
+        <section class="text-center space-y-4">
+            <h2 class="text-3xl md:text-5xl font-bold leading-tight">
+                時間價值的<br class="md:hidden" /><span class="gradient-text">流逝規律 (最後衝刺)</span>
+            </h2>
+            <p class="text-slate-600 text-lg md:text-xl max-w-2xl mx-auto">
+                了解選擇權交易中沈默的殺手與盟友——Theta ($\Theta$)。
+                <br>為什麼最後 14 天是資金縮水的關鍵？
+            </p>
+        </section>
+
+        <!-- Interactive Visualizer Card -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="p-6 md:p-8">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-brand-accent rounded-full"></span>
+                            互動模擬：最後 14 天加速衰退
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-1">
+                            <span class="inline-block bg-slate-100 px-2 py-0.5 rounded text-xs font-bold text-slate-600 mr-1">操作</span>
+                            向右拖動滑桿，模擬時間流逝 (14天 &rarr; 0天)
+                        </p>
+                    </div>
+                    <div class="text-right hidden md:block">
+                        <div class="text-sm text-slate-400 ip-tag">DATA: THEORETICAL-ATM-14D</div>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="relative h-64 md:h-80 w-full mb-6">
+                    <canvas id="decayChart"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex flex-col space-y-4">
+                        <div class="flex justify-between text-sm font-medium text-slate-600">
+                            <span>剩餘天數 (DTE): <span id="daysDisplay" class="text-brand-accent text-lg font-bold">14</span> 天</span>
+                            <span>剩餘時間價值: <span id="valueDisplay" class="text-brand-accent text-lg font-bold">100</span>%</span>
+                        </div>
+                        
+                        <!-- Slider: Min=0 (Day 14), Max=14 (Day 0) logic handled in JS -->
+                        <input type="range" id="daysSlider" min="0" max="14" value="0" step="1" 
+                            class="w-full">
+                            
+                        <div class="flex justify-between text-xs text-slate-400 font-mono">
+                            <span>14天 (起點)</span>
+                            <span>7天 (加速)</span>
+                            <span>3天 (危險)</span>
+                            <span class="text-red-500 font-bold">0天 (歸零)</span>
+                        </div>
+                    </div>
+                    
+                    <div id="alertBox" class="hidden mt-4 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start animate-pulse">
+                        <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <div>
+                            <strong>注意：進入「Gamma 風險」極速區！ (剩餘 < 3天)</strong>
+                            <br>時間價值正以最大速度蒸發，且股價微小波動將造成權利金劇烈震盪。建議買方盡速離場，賣方此時風險最高。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Content -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Core Concept -->
+            <section class="space-y-4">
+                <h3 class="text-2xl font-bold text-slate-800">核心觀念解析</h3>
+                <div class="prose prose-slate text-slate-600">
+                    <p>
+                        選擇權的權利金（Premium）由兩個部分組成：
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <li><strong>內含價值 (Intrinsic Value)</strong>：目前履約是否有獲利。</li>
+                        <li><strong>時間價值 (Time Value)</strong>：對未來股價波動的「期望值」。</li>
+                    </ul>
+                    <p class="mt-4">
+                        隨著到期日接近，不確定性降低，這份「期望值」會歸零。這個過程稱為<strong>時間價值流逝</strong>，在希臘字母中由 <span class="font-bold text-brand-accent">Theta ($\Theta$)</span> 代表。
+                    </p>
+                </div>
+            </section>
+
+            <!-- Key Takeaways -->
+            <section class="space-y-4">
+                <h3 class="text-2xl font-bold text-slate-800">流逝規律 (The Curve)</h3>
+                <div class="bg-slate-800 text-slate-50 p-6 rounded-xl shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-2 opacity-10">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <ul class="space-y-4 relative z-10">
+                        <li class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1 flex-shrink-0">1</span>
+                            <div>
+                                <h4 class="font-bold text-white">非線性衰退</h4>
+                                <p class="text-sm text-slate-300 mt-1">時間價值不是每天平均減少，而是呈「指數型」加速。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1 flex-shrink-0">2</span>
+                            <div>
+                                <h4 class="font-bold text-white">價平 (ATM) 影響最大</h4>
+                                <p class="text-sm text-slate-300 mt-1">價平選擇權的時間價值最高，因此流逝的速度也最快、最劇烈。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-1 flex-shrink-0">3</span>
+                            <div>
+                                <h4 class="font-bold text-white">最後 14 天關鍵期</h4>
+                                <p class="text-sm text-slate-300 mt-1">如圖表所示，進入最後兩週，曲線呈現近乎垂直的崩跌，尤其是最後 3 天。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <!-- Strategy Section -->
+        <section class="border-t border-slate-200 pt-8">
+            <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">實戰應用策略 (短週期/週選)</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Buyer Strategy -->
+                <div class="bg-red-50 border-l-4 border-red-400 p-5 rounded-r-lg">
+                    <h4 class="font-bold text-red-800 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                        買方 (Long) 策略
+                    </h4>
+                    <p class="text-sm text-red-700">
+                        <strong>時間是你的敵人。</strong><br>
+                        避免持有剩餘時間小於 3 天的價平選擇權。若要博取短線波動，應以日內交易 (Day Trade) 為主，避免留倉過夜承擔 Theta 損失。
+                    </p>
+                </div>
+
+                <!-- Seller Strategy -->
+                <div class="bg-green-50 border-l-4 border-green-500 p-5 rounded-r-lg">
+                    <h4 class="font-bold text-green-800 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        賣方 (Short) 策略
+                    </h4>
+                    <p class="text-sm text-green-700">
+                        <strong>時間是你的朋友。</strong><br>
+                        適合在 7-14 天進行價差單 (Spread) 佈局，利用快速衰退獲利。但在最後 3 天建議平倉，以避開 Gamma 暴漲帶來的穿價風險。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-12">
+        <div class="max-w-4xl mx-auto px-4 text-center space-y-4">
+            <div class="text-xs ip-tag border border-slate-700 inline-block px-3 py-1 rounded">
+                IP LABEL: OPTION-EDU-CONTENT-202X
+            </div>
+            <p class="text-sm">
+                免責聲明：本網頁內容僅供教學演示，不構成任何投資建議。選擇權交易具有高風險，請謹慎評估。
+            </p>
+            <p class="text-xs text-slate-600">
+                &copy; 2024 OptionAlpha Education. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script for Interactive Chart -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('decayChart').getContext('2d');
+            const slider = document.getElementById('daysSlider');
+            const daysDisplay = document.getElementById('daysDisplay');
+            const valueDisplay = document.getElementById('valueDisplay');
+            const alertBox = document.getElementById('alertBox');
+
+            // --- Configuration ---
+            const MAX_DAYS = 14;
+            const DANGER_DAYS = 3;
+            
+            // --- Data Generation ---
+            // Labels: [14, 13, ..., 0] -> Left to Right
+            const labels = [];
+            const dataPoints = [];
+            
+            for (let i = MAX_DAYS; i >= 0; i--) {
+                labels.push(i);
+                // Model: y = 100 * sqrt(x / 14)
+                let val = 100 * Math.sqrt(i / MAX_DAYS);
+                dataPoints.push(val);
+            }
+
+            // --- Chart Initialization ---
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels, 
+                    datasets: [{
+                        label: '時間價值 (%)',
+                        data: dataPoints,
+                        borderColor: '#3b82f6', // Initial Blue
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        // The Interactive Red Dot
+                        label: '當前位置',
+                        data: [], // Filled dynamically
+                        borderColor: '#ef4444',
+                        backgroundColor: '#ef4444',
+                        pointRadius: 8,
+                        pointHoverRadius: 10,
+                        showLine: false // Important: renders as a dot only
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => `剩餘天數: ${context[0].label} 天`,
+                                label: (context) => `價值保留: ${context.raw.toFixed(1)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '距離到期天數 (DTE)',
+                                color: '#64748b'
+                            },
+                            // IMPORTANT: reverse: false means index 0 (Day 14) is on Left.
+                            reverse: false, 
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '時間價值剩餘比例 (%)',
+                                color: '#64748b'
+                            },
+                            min: 0,
+                            max: 105,
+                            grid: { borderDash: [5, 5] }
+                        }
+                    }
+                }
+            });
+
+            // --- Update Logic ---
+            function updateVisuals(sliderValue) {
+                // Slider Value: 0 (Left) -> 14 (Right)
+                // We map this to:
+                // Slider 0 (Start) -> Day 14
+                // Slider 14 (End) -> Day 0
+                const daysPassed = parseInt(sliderValue);
+                const daysRemaining = MAX_DAYS - daysPassed;
+
+                // 1. Update Text
+                daysDisplay.textContent = daysRemaining;
+                
+                // 2. Find Index & Value
+                // labels array is [14, 13, ..., 0]
+                // if daysRemaining is 14, index should be 0.
+                // if daysRemaining is 0, index should be 14.
+                // Formula: index = 14 - daysRemaining = daysPassed
+                const index = daysPassed;
+                const value = dataPoints[index];
+                
+                valueDisplay.textContent = value.toFixed(1);
+
+                // 3. Move Red Dot
+                // We create a new array with nulls, except for the current index
+                const newDotData = new Array(labels.length).fill(null);
+                newDotData[index] = value;
+                
+                chart.data.datasets[1].data = newDotData;
+
+                // 4. Handle "Cliff" Visualization (Color change)
+                if (daysRemaining <= DANGER_DAYS) {
+                    // Alert Box
+                    alertBox.classList.remove('hidden');
+                    
+                    // Change Text Colors
+                    daysDisplay.classList.remove('text-brand-accent');
+                    daysDisplay.classList.add('text-red-500');
+                    
+                    // Change Chart Line Color (Gradient)
+                    chart.data.datasets[0].borderColor = (ctx) => {
+                        const chartArea = ctx.chart.chartArea;
+                        if (!chartArea) return '#ef4444';
+                        return getDangerGradient(ctx.chart.ctx, chartArea);
+                    };
+                    
+                    // Update Slider Thumb Color (via css var if complex, but here simplistic)
+                } else {
+                    alertBox.classList.add('hidden');
+                    daysDisplay.classList.add('text-brand-accent');
+                    daysDisplay.classList.remove('text-red-500');
+                    chart.data.datasets[0].borderColor = '#3b82f6';
+                }
+
+                chart.update(); // Standard update to ensure dot moves
+            }
+
+            // Helper: Gradient for the Danger Zone
+            function getDangerGradient(ctx, chartArea) {
+                const width = chartArea.right - chartArea.left;
+                const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+                
+                // We want the line to turn red towards the right end
+                // 14 days total. Danger zone starts at last 3 days.
+                // Transition point = (14 - 3) / 14 = 11 / 14 ≈ 0.78
+                gradient.addColorStop(0, '#3b82f6');      // Start Blue
+                gradient.addColorStop(0.75, '#3b82f6');   // Stay Blue until danger zone
+                gradient.addColorStop(1, '#ef4444');      // End Red
+                
+                return gradient;
+            }
+
+            // --- Event Listeners ---
+            slider.addEventListener('input', (e) => updateVisuals(e.target.value));
+            
+            // Init
+            updateVisuals(slider.value);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamma：Delta 的加速度 | 歐大選擇權教室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .accent-gradient {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #38bdf8;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .gamma-curve {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 2s linear forwards;
+        }
+
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-card px-6 py-4 flex justify-between items-center border-b border-white/10">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center font-bold text-white">J</div>
+            <span class="text-xl font-bold tracking-tight">歐大選擇權教室 <span class="text-sky-400 text-sm font-normal ml-2">Joption</span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="container mx-auto px-6 pt-16 pb-12 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 accent-gradient">Gamma：Delta 的加速度</h1>
+        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+            如果你說 Delta 是車速，那 Gamma 就是讓車速瞬間噴發的油門。歡迎來到 Joption 的核心課程。
+        </p>
+    </header>
+
+    <!-- Interactive Simulator Section -->
+    <section class="container mx-auto px-6 py-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Explanation Card -->
+            <div class="space-y-6">
+                <div class="glass-card p-8 rounded-3xl">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center">
+                        <span class="w-2 h-8 bg-sky-500 rounded mr-3"></span>
+                        什麼是 Gamma？
+                    </h2>
+                    <p class="text-slate-300 leading-relaxed mb-4">
+                        在選擇權的世界中，當標的物價格移動 1 點時，Delta 會變動多少？這個「變動的變動」就是 **Gamma**。
+                    </p>
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5 font-mono text-sky-300 text-center text-xl">
+                        Gamma = Δ Delta / Δ Price
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-emerald-500">
+                        <div class="text-sm text-slate-400 uppercase">Long Gamma (買方)</div>
+                        <div class="text-xl font-bold">正值 (+)</div>
+                        <div class="text-xs text-emerald-400 mt-1">獲利會隨行情加速</div>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-rose-500">
+                        <div class="text-sm text-slate-400 uppercase">Short Gamma (賣方)</div>
+                        <div class="text-xl font-bold">負值 (-)</div>
+                        <div class="text-xs text-rose-400 mt-1">虧損會隨行情加速</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Tool -->
+            <div class="glass-card p-8 rounded-3xl relative overflow-hidden">
+                <div class="mb-8 flex justify-between items-end">
+                    <div>
+                        <h3 class="text-lg font-bold text-sky-400">Joption 實時動態模擬</h3>
+                        <p class="text-xs text-slate-500">調整滑桿觀察 Delta 如何被 Gamma 驅動</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400">履約價 (Strike)</span>
+                        <div class="text-xl font-bold">18,000</div>
+                    </div>
+                </div>
+
+                <!-- Visualization Area -->
+                <div class="h-48 flex items-end justify-between space-x-1 mb-6 relative">
+                    <!-- Gamma Peak visualization -->
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 100">
+                        <path id="gammaCurve" d="M0,100 Q200,-50 400,100" fill="none" stroke="rgba(56, 189, 248, 0.3)" stroke-width="2" />
+                        <circle id="pricePointer" cx="200" cy="25" r="5" fill="#38bdf8" />
+                    </svg>
+                </div>
+
+                <!-- Stats Display -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="text-center p-4 bg-slate-800 rounded-xl">
+                        <div class="text-xs text-slate-500 mb-1">目前 Delta (速度)</div>
+                        <div id="deltaValue" class="text-3xl font-bold text-white">0.50</div>
+                    </div>
+                    <div class="text-center p-4 bg-slate-800 rounded-xl">
+                        <div class="text-xs text-slate-500 mb-1">目前 Gamma (加速度)</div>
+                        <div id="gammaValue" class="text-3xl font-bold text-sky-400">0.08</div>
+                    </div>
+                </div>
+
+                <!-- Control -->
+                <div class="space-y-4">
+                    <div class="flex justify-between text-sm">
+                        <span>標的價格: <span id="currentPrice" class="text-sky-400 font-bold">18,000</span></span>
+                        <span class="text-slate-500">價平 (ATM) 附近 Gamma 最大</span>
+                    </div>
+                    <input type="range" id="priceSlider" min="17500" max="18500" value="18000" step="1" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Content Section -->
+    <section class="container mx-auto px-6 py-12">
+        <div class="max-w-4xl mx-auto space-y-12">
+            <div>
+                <h3 class="text-3xl font-bold mb-6 flex items-center">
+                    <span class="text-sky-500 mr-4 italic">01.</span> 為什麼它叫加速度？
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-sky-500/50 transition">
+                        <h4 class="font-bold text-lg mb-2 text-sky-300">標的移動</h4>
+                        <p class="text-sm text-slate-400">油門踩下的深度。價格每變動 1 點，齒輪就開始轉動。</p>
+                    </div>
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-sky-500/50 transition">
+                        <h4 class="font-bold text-lg mb-2 text-sky-300">Delta 變化</h4>
+                        <p class="text-sm text-slate-400">目前的時速。Gamma 會在此時迅速增加或減少 Delta 的數值。</p>
+                    </div>
+                    <div class="p-6 bg-slate-800/50 rounded-2xl border border-white/5 hover:border-sky-500/50 transition">
+                        <h4 class="font-bold text-lg mb-2 text-sky-300">獲利噴發</h4>
+                        <p class="text-sm text-slate-400">加速度讓你的獲利不再是線性增長，而是呈曲線噴出。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl">
+                <h3 class="text-2xl font-bold mb-6">歐大的實戰金律</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <div class="mt-1.5 mr-3 w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+                        <p class="text-slate-300"><strong class="text-white">價平 (ATM) 是主戰場：</strong> Gamma 在履約價附近最高。當價格靠近履約價，Delta 變動最劇烈。</p>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="mt-1.5 mr-3 w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+                        <p class="text-slate-300"><strong class="text-white">時間是 Gamma 的催化劑：</strong> 越接近到期日，價平選擇權的 Gamma 會變得巨大無比。這就是「結算日行情」的真相。</p>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="mt-1.5 mr-3 w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+                        <p class="text-slate-300"><strong class="text-white">賣方的夢魘：</strong> 賣方（Short Gamma）最怕暴漲暴跌。因為 Gamma 會讓虧損「加速」擴大，這就是為什麼賣方必須嚴格停損。</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-20 py-12 border-t border-white/10 text-center glass-card">
+        <div class="mb-4 flex justify-center items-center space-x-2">
+            <div class="w-6 h-6 bg-slate-500 rounded flex items-center justify-center font-bold text-white text-xs">J</div>
+            <span class="font-bold tracking-widest text-slate-400 uppercase">JOPTION | 歐大選擇權教室</span>
+        </div>
+        <p class="text-sm text-slate-500 px-6">
+            © 2026 Joption Academy - 金融教育僅供參考，投資有風險，操作需謹慎
+        </p>
+    </footer>
+
+    <script>
+        const slider = document.getElementById('priceSlider');
+        const priceLabel = document.getElementById('currentPrice');
+        const deltaLabel = document.getElementById('deltaValue');
+        const gammaLabel = document.getElementById('gammaValue');
+        const pricePointer = document.getElementById('pricePointer');
+
+        const strike = 18000;
+
+        function updateSimulation(price) {
+            price = parseFloat(price);
+            priceLabel.textContent = price.toLocaleString();
+
+            // Simplified Math for educational purposes
+            // Delta follows a cumulative normal distribution (simulated with sigmoid)
+            const diff = (price - strike) / 100;
+            const delta = 1 / (1 + Math.exp(-diff));
+            
+            // Gamma follows a normal distribution (simulated)
+            const gamma = Math.exp(-Math.pow(diff, 2) / 2) / (Math.sqrt(2 * Math.PI));
+
+            deltaLabel.textContent = delta.toFixed(2);
+            gammaLabel.textContent = (gamma * 0.2).toFixed(3); // Normalized for visual feel
+
+            // Update SVG Pointer
+            const svgWidth = 400;
+            const x = ((price - 17500) / 1000) * svgWidth;
+            
+            // Y is inverse to Gamma (since SVG 0,0 is top left)
+            const y = 80 - (gamma * 150); 
+            
+            pricePointer.setAttribute('cx', x);
+            pricePointer.setAttribute('cy', y);
+
+            // Change color based on delta
+            if (delta > 0.6) deltaLabel.className = 'text-3xl font-bold text-emerald-400';
+            else if (delta < 0.4) deltaLabel.className = 'text-3xl font-bold text-rose-400';
+            else deltaLabel.className = 'text-3xl font-bold text-white';
+        }
+
+        slider.addEventListener('input', (e) => {
+            updateSimulation(e.target.value);
+        });
+
+        // Init
+        updateSimulation(18000);
+    </script>
+</body>
+</html>
