@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權教室：權利與義務的對稱性</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            padding: 24px;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+        .axis { stroke: #64748b; stroke-width: 2.5; }
+        .grid-line { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 5,5; }
+        .line-long { stroke: #059669; stroke-width: 5; fill: none; stroke-linecap: round; }
+        .line-short { stroke: #dc2626; stroke-width: 5; fill: none; stroke-linecap: round; }
+        .chart-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; }
+        .axis-label { fill: #475569; font-size: 16px; }
+        .profit-label { fill: #065f46; font-size: 14px; }
+        .loss-label { fill: #991b1b; font-size: 14px; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white py-12 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">選擇權核心：權利與義務的對稱性</h1>
+        <p class="text-indigo-200 text-xl max-w-2xl mx-auto">
+            理解「買方」與「賣方」之間那道不平等的界線，是通與高手之路的第一步。
+        </p>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        
+        <!-- Section 1: Concept Introduction -->
+        <section class="mb-16">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold mb-6 flex items-center">
+                        <span class="bg-indigo-600 text-white p-2 rounded-lg mr-3 shadow-lg">
+                            <i data-lucide="info"></i>
+                        </span>
+                        什麼是不對稱性？
+                    </h2>
+                    <p class="text-lg leading-relaxed text-slate-600 mb-4">
+                        在法律契約中，雙方通常是對等的。但在選擇權的世界裡，**買方支付金錢來「購買選擇權」**，而**賣方收取金錢來「承擔義務」**。
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                        <div class="p-6 border-l-8 border-emerald-500 bg-white shadow-sm rounded-r-xl">
+                            <h3 class="font-bold text-emerald-800 text-2xl mb-2">買方 (Buyer)</h3>
+                            <p class="text-emerald-700 text-lg">支付權利金，擁有執行的**權利**。<br><span class="font-bold text-red-600 underline">虧損有限</span>，獲利無限。</p>
+                        </div>
+                        <div class="p-6 border-l-8 border-red-500 bg-white shadow-sm rounded-r-xl">
+                            <h3 class="font-bold text-red-800 text-2xl mb-2">賣方 (Seller)</h3>
+                            <p class="text-red-700 text-lg">收取權利金，承擔履約的**義務**。<br>獲利有限，<span class="font-bold text-red-600 underline">風險無限</span>。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Visual Charts -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-10 text-center">圖形化說明：損益結構圖</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Long Call Chart -->
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold mb-6 text-emerald-700 text-center bg-emerald-50 py-2 rounded-full">買進看漲 (Long Call)</h3>
+                    <svg viewBox="0 0 400 320" class="w-full h-auto">
+                        <!-- Grid and Axes -->
+                        <line x1="40" y1="160" x2="380" y2="160" class="axis" /> <!-- X-axis -->
+                        <line x1="60" y1="40" x2="60" y2="280" class="axis" />  <!-- Y-axis -->
+                        <line x1="60" y1="210" x2="380" y2="210" class="grid-line" /> <!-- Breakeven line base -->
+                        
+                        <text x="340" y="185" class="chart-text axis-label">股價 →</text>
+                        <text x="10" y="45" class="chart-text axis-label">損益 ↑</text>
+                        
+                        <!-- Payoff Line -->
+                        <path d="M 60 210 L 200 210 L 350 60" class="line-long" />
+                        <circle cx="200" cy="210" r="7" fill="#059669" />
+                        <text x="175" y="240" class="chart-text axis-label" style="fill:#1e293b">履約價</text>
+                        
+                        <!-- Labels with solid backgrounds for clarity -->
+                        <rect x="245" y="45" width="110" height="35" rx="6" fill="#059669" />
+                        <text x="255" y="68" class="chart-text" style="fill:white; font-size:16px;">獲利無限</text>
+                        
+                        <rect x="75" y="230" width="110" height="35" rx="6" fill="#dc2626" />
+                        <text x="85" y="253" class="chart-text" style="fill:white; font-size:16px;">虧損有限</text>
+                    </svg>
+                    <p class="text-center text-slate-500 mt-4 text-sm font-medium">※ 橫軸下方代表虧損，上方代表獲利</p>
+                </div>
+
+                <!-- Short Call Chart -->
+                <div class="chart-container">
+                    <h3 class="text-2xl font-bold mb-6 text-red-700 text-center bg-red-50 py-2 rounded-full">賣出看漲 (Short Call)</h3>
+                    <svg viewBox="0 0 400 320" class="w-full h-auto">
+                        <!-- Grid and Axes -->
+                        <line x1="40" y1="160" x2="380" y2="160" class="axis" /> 
+                        <line x1="60" y1="40" x2="60" y2="280" class="axis" />
+                        <line x1="60" y1="110" x2="380" y2="110" class="grid-line" />
+                        
+                        <text x="340" y="185" class="chart-text axis-label">股價 →</text>
+                        <text x="10" y="45" class="chart-text axis-label">損益 ↑</text>
+                        
+                        <!-- Payoff Line -->
+                        <path d="M 60 110 L 200 110 L 350 260" class="line-short" />
+                        <circle cx="200" cy="110" r="7" fill="#dc2626" />
+                        <text x="175" y="90" class="chart-text axis-label" style="fill:#1e293b">履約價</text>
+                        
+                        <!-- Labels with solid backgrounds for clarity -->
+                        <rect x="75" y="45" width="110" height="35" rx="6" fill="#059669" />
+                        <text x="85" y="68" class="chart-text" style="fill:white; font-size:16px;">獲利有限</text>
+                        
+                        <rect x="245" y="240" width="110" height="35" rx="6" fill="#dc2626" />
+                        <text x="255" y="263" class="chart-text" style="fill:white; font-size:16px;">風險無限</text>
+                    </svg>
+                    <p class="text-center text-slate-500 mt-4 text-sm font-medium">※ 賣方獲利上限即為收取的權利金</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Comparative Table -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8">深度比較表</h2>
+            <div class="overflow-x-auto shadow-xl rounded-xl">
+                <table class="w-full text-left border-collapse bg-white overflow-hidden">
+                    <thead>
+                        <tr class="bg-indigo-600 text-white text-lg">
+                            <th class="p-5">比較項目</th>
+                            <th class="p-5">買方 (Buyer / Long)</th>
+                            <th class="p-5">賣方 (Seller / Short)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-lg">
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-5 font-bold bg-slate-50 w-1/4">角色性質</td>
+                            <td class="p-5 text-indigo-700">權利擁有者 (買保險的人)</td>
+                            <td class="p-5 text-amber-700">義務承擔者 (保險公司)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-5 font-bold bg-slate-50">資金往來</td>
+                            <td class="p-5 text-red-600 font-bold">支出權利金</td>
+                            <td class="p-5 text-emerald-600 font-bold">收入權利金</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-5 font-bold bg-slate-50">最大獲利</td>
+                            <td class="p-5 bg-emerald-50 text-emerald-800 font-extrabold text-xl">理論上無限</td>
+                            <td class="p-5">有限 (權利金)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-5 font-bold bg-slate-50">最大虧損</td>
+                            <td class="p-5">有限 (權利金)</td>
+                            <td class="p-5 bg-red-50 text-red-800 font-extrabold text-xl">理論上無限</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-5 font-bold bg-slate-50">勝率</td>
+                            <td class="p-5 text-slate-500 italic">通常較低</td>
+                            <td class="p-5 text-indigo-600 font-bold">通常較高</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Pro Tips -->
+        <section class="bg-gradient-to-br from-indigo-900 to-indigo-800 p-10 rounded-3xl shadow-2xl text-white">
+            <h2 class="text-3xl font-bold mb-6 flex items-center">
+                <i data-lucide="award" class="mr-3 w-8 h-8"></i> 高手心得分享
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-indigo-100 text-lg">
+                <div class="space-y-4">
+                    <p class="border-l-4 border-indigo-400 pl-4 italic">
+                        "初學者往往被「獲利無限」吸引，但高手更在意「期望值」。"
+                    </p>
+                    <p>
+                        雖然買方風險有限，但**勝率較低**。你必須要在短時間內看對方向，且波動要大到足以覆蓋時間價值的流失。
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <p>
+                        賣方雖然「風險無限」，但透過**良好的資金管理**（只動用 1/3 的保證金），賣方可以享受高勝率與收租的快感。
+                    </p>
+                    <p class="font-bold text-amber-300">
+                        核心鐵律：買方要「快且準」，賣方要「穩且恆」。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-12 px-6 text-center">
+        <p class="mb-2 text-lg">© 2024 選擇權高手教學網</p>
+        <div class="flex justify-center gap-4 text-sm mt-4">
+            <span class="px-3 py-1 bg-slate-800 rounded">低風險</span>
+            <span class="px-3 py-1 bg-slate-800 rounded">高槓桿</span>
+            <span class="px-3 py-1 bg-slate-800 rounded">權利金管理</span>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權大師：履約價與權利金全解析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-12 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">選擇權核心教學</h1>
+        <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+            掌握「履約價」與「權利金」，就掌握了選擇權交易的靈魂。
+        </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        
+        <!-- Section: Strike Price -->
+        <section class="mb-16">
+            <div class="flex items-center mb-8">
+                <div class="bg-blue-600 text-white p-3 rounded-lg mr-4">
+                    <i class="fas fa-bullseye text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold">1. 履約價 (Strike Price)</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <p class="text-lg leading-relaxed">
+                        **履約價** 是買賣雙方約定在未來某個特定時間，以此價格買入或賣出標的資產（如台指期、股票）的價格。
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <p class="font-medium text-blue-800 italic">「它就像是一張契約的標價，決定了你這張權利的獲利門檻。」</p>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span><strong>價內 (ITM):</strong> 對持有人有利。看漲時，履約價 < 現價；看跌時，履約價 > 現價。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-gray-400 mt-1 mr-2"></i>
+                            <span><strong>價平 (ATM):</strong> 履約價幾乎等於目前市場價格。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-red-400 mt-1 mr-2"></i>
+                            <span><strong>價外 (OTM):</strong> 目前不具行使價值。看漲時，履約價 > 現價；看跌時，履約價 < 現價。</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card p-6 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-bold mb-4">價位關係圖 (以看漲 Call 為例)</h3>
+                    <svg viewBox="0 0 400 200" class="w-full">
+                        <!-- Axis -->
+                        <line x1="50" y1="150" x2="350" y2="150" stroke="#94a3b8" stroke-width="2" />
+                        <!-- Price Point -->
+                        <circle cx="200" cy="150" r="6" fill="#2563eb" />
+                        <text x="180" y="180" class="text-xs fill-slate-500">目前市價</text>
+                        
+                        <!-- Regions -->
+                        <rect x="50" y="50" width="145" height="100" fill="#dcfce7" fill-opacity="0.5" />
+                        <text x="80" y="100" class="text-sm font-bold fill-green-700">價內 (ITM)</text>
+                        
+                        <rect x="205" y="50" width="145" height="100" fill="#fee2e2" fill-opacity="0.5" />
+                        <text x="240" y="100" class="text-sm font-bold fill-red-700">價外 (OTM)</text>
+                    </svg>
+                    <p class="text-xs text-slate-500 mt-2">當股價越高，買權 (Call) 的履約價若越低，則越處於價內。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Premium -->
+        <section class="mb-16">
+            <div class="flex items-center mb-8">
+                <div class="bg-amber-500 text-white p-3 rounded-lg mr-4">
+                    <i class="fas fa-coins text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold">2. 權利金 (Premium)</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-6 bg-slate-50">
+                    <h3 class="text-xl font-bold mb-4 text-center">權利金 = 內含價值 + 時間價值</h3>
+                    <div class="space-y-6">
+                        <div class="p-4 bg-white rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-blue-600 mb-2">內含價值 (Intrinsic Value)</h4>
+                            <p class="text-sm">如果現在立刻履約，這張契約值多少錢？只有「價內」契約才有內含價值。</p>
+                        </div>
+                        <div class="text-center text-xl font-bold text-slate-400">+</div>
+                        <div class="p-4 bg-white rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-amber-600 mb-2">時間價值 (Time Value)</h4>
+                            <p class="text-sm">離到期日還有的「希望」。隨時間流逝會不斷歸零（時間遞耗）。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-lg leading-relaxed">
+                        **權利金** 是買方為了獲得權利而支付給賣方的費用（代價）。
+                    </p>
+                    <p class="text-slate-600">影響權利金的主要因素：</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 border rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-500">標的股價</div>
+                            <div class="text-xs text-slate-400">Delta</div>
+                        </div>
+                        <div class="p-3 border rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-500">波動率</div>
+                            <div class="text-xs text-slate-400">Vega</div>
+                        </div>
+                        <div class="p-3 border rounded-lg text-center">
+                            <div class="text-2xl font-bold text-orange-500">剩餘時間</div>
+                            <div class="text-xs text-slate-400">Theta</div>
+                        </div>
+                        <div class="p-3 border rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-500">市場利率</div>
+                            <div class="text-xs text-slate-400">Rho</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Visual: Payoff Diagram -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-8 text-center">視覺化損益圖 (買進買權 Long Call)</h2>
+            <div class="card p-8">
+                <div class="chart-container" id="chartContainer">
+                    <svg viewBox="0 0 800 400" class="w-full h-full">
+                        <!-- Zero Line -->
+                        <line x1="0" y1="250" x2="800" y2="250" stroke="#cbd5e1" stroke-width="2" />
+                        <text x="10" y="240" class="text-sm fill-slate-400 italic">損益兩平線 (Profit/Loss = 0)</text>
+                        
+                        <!-- Payoff Line -->
+                        <!-- Premium Paid = 50, Strike = 400 -->
+                        <polyline points="0,350 400,350 700,50" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round" />
+                        
+                        <!-- Labels -->
+                        <circle cx="400" cy="350" r="5" fill="#f59e0b" />
+                        <text x="380" y="380" class="text-sm font-bold fill-slate-700">履約價</text>
+                        
+                        <circle cx="500" cy="250" r="5" fill="#10b981" />
+                        <text x="480" y="230" class="text-sm font-bold fill-green-600">損益兩平點</text>
+                        
+                        <!-- Areas -->
+                        <text x="100" y="320" class="text-lg font-bold fill-red-500">最大風險 = 權利金</text>
+                        <text x="600" y="100" class="text-lg font-bold fill-green-500">獲利無限</text>
+                        
+                        <!-- Axis Title -->
+                        <text x="700" y="280" class="text-xs fill-slate-400">結算股價 →</text>
+                        <text x="10" y="50" class="text-xs fill-slate-400">獲利 ↑</text>
+                    </svg>
+                </div>
+                <div class="mt-6 p-4 bg-amber-50 rounded-lg text-sm text-amber-800">
+                    <p><strong>高手觀點：</strong> 買入 Call 時，你的權利金就像是買保險的保費。如果股價沒漲過「履約價 + 權利金」，你就會損失部分或全部的保費。但如果股價噴出，獲利是沒有天花板的！</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Summary Table -->
+        <section>
+            <h2 class="text-3xl font-bold mb-8">快速總結</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800 text-white">
+                            <th class="p-4 rounded-tl-lg">項目</th>
+                            <th class="p-4">履約價 (Strike)</th>
+                            <th class="p-4 rounded-tr-lg">權利金 (Premium)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-4 font-bold">性質</td>
+                            <td class="p-4">契約中固定的買賣價格</td>
+                            <td class="p-4">契約在市場上的交易價格（變動）</td>
+                        </tr>
+                        <tr class="border-b bg-slate-50">
+                            <td class="p-4 font-bold">由誰決定</td>
+                            <td class="p-4">交易所預先設定好</td>
+                            <td class="p-4">市場買賣雙方供需決定</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-4 font-bold">對損益影響</td>
+                            <td class="p-4">決定是否獲利的「起跑線」</td>
+                            <td class="p-4">決定交易的「初始成本」</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-12 px-6 text-center">
+        <p>© 2026 選擇權大師教學網 | 投資有風險，操作請謹慎</p>
+    </footer>
+
+</body>
+</html>

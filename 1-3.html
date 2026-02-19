@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權勝率大對決 - 教學網站</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #020617; /* slate-950 */
+        }
+        /* 防止 React 載入前看到原始碼 */
+        [type="text/babel"] { display: none; }
+        #root:empty { display: none; }
+        
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container {
+            min-height: 280px;
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Icons = {
+            TrendingUp: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>,
+            TrendingDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>,
+            Minus: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
+            ShieldCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
+            Target: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>,
+            AlertTriangle: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
+            Info: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="12" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        };
+
+        const PayoffDiagram = ({ type }) => {
+            return (
+                <div className="w-full h-72 bg-slate-900/50 rounded-2xl p-6 relative border border-slate-800 overflow-hidden shadow-inner">
+                    <svg viewBox="0 0 400 200" className="w-full h-full">
+                        {/* Axes */}
+                        <line x1="20" y1="100" x2="380" y2="100" stroke="#475569" strokeWidth="1" strokeDasharray="4" />
+                        <line x1="150" y1="10" x2="150" y2="190" stroke="#475569" strokeWidth="1" strokeDasharray="4" />
+                        
+                        {/* Labels with improved positioning */}
+                        <text x="340" y="90" fill="#94a3b8" fontSize="12" fontWeight="bold">股價 →</text>
+                        <text x="160" y="25" fill="#94a3b8" fontSize="12" fontWeight="bold">獲利 ↑</text>
+                        <text x="160" y="185" fill="#94a3b8" fontSize="12" fontWeight="bold">虧損 ↓</text>
+                        
+                        {/* Payoff Line */}
+                        {type === 'buyer_call' && (
+                            <path d="M 20 140 L 150 140 L 350 40" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinejoin="round" />
+                        )}
+                        {type === 'seller_call' && (
+                            <path d="M 20 60 L 150 60 L 350 160" fill="none" stroke="#ef4444" strokeWidth="4" strokeLinejoin="round" />
+                        )}
+                        
+                        {/* Strike Price Marker */}
+                        <circle cx="150" cy={type.includes('buyer') ? 140 : 60} r="5" fill="#fbbf24" />
+                        <text x="130" y={type.includes('buyer') ? 165 : 45} fill="#fbbf24" fontSize="11" fontWeight="bold">履約價</text>
+                    </svg>
+                    <div className="absolute top-4 right-6 bg-slate-800/80 px-3 py-1 rounded-full text-[10px] font-bold text-slate-300 border border-slate-700">
+                        {type.includes('buyer') ? "買方：風險有限" : "賣方：獲利有限"}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('logic');
+
+            return (
+                <div className="min-h-screen p-4 md:p-12 max-w-6xl mx-auto">
+                    <header className="mb-16 text-center animate-fade-in">
+                        <div className="inline-block mb-3 px-4 py-1 bg-blue-500/10 text-blue-400 rounded-full text-sm font-bold border border-blue-500/20 uppercase tracking-widest">
+                            Options Education
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-blue-400 via-emerald-400 to-blue-400 bg-clip-text text-transparent mb-6">
+                            選擇權勝率大對決
+                        </h1>
+                        <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                            買方追逐爆發力，賣方追求穩定機率。我們將透過視覺化數據，帶你深入了解這場「樂透」與「莊家」的博弈。
+                        </p>
+                    </header>
+
+                    <nav className="mb-12 flex flex-wrap justify-center gap-3 animate-fade-in" style={{animationDelay: '0.1s'}}>
+                        {[
+                            { id: 'logic', label: '核心獲利邏輯', icon: <Icons.Target /> },
+                            { id: 'buyer', label: '買方 (Long) 視角', icon: <Icons.TrendingUp /> },
+                            { id: 'seller', label: '賣方 (Short) 視角', icon: <Icons.ShieldCheck /> },
+                            { id: 'comparison', label: '勝率量化分析', icon: <Icons.Info /> }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                                    activeTab === tab.id 
+                                        ? 'bg-blue-600 text-white shadow-xl shadow-blue-900/40 translate-y-[-2px]' 
+                                        : 'bg-slate-900 text-slate-400 hover:bg-slate-800 border border-slate-800'
+                                }`}
+                            >
+                                {tab.icon}
+                                {tab.label}
+                            </button>
+                        ))}
+                    </nav>
+
+                    <div className="animate-fade-in" style={{animationDelay: '0.2s'}}>
+                        {activeTab === 'logic' && (
+                            <div className="grid md:grid-cols-2 gap-10">
+                                <div className="space-y-8">
+                                    <h2 className="text-3xl font-bold text-white leading-tight">時間是誰的朋友？</h2>
+                                    <p className="text-slate-400 text-lg leading-relaxed">
+                                        價格變動不僅是方向問題。賣方之所以勝率高，是因為他們在市場<span className="text-blue-400 font-bold">「不動」</span>的時候也能賺錢。
+                                    </p>
+                                    <div className="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 space-y-6">
+                                        <h3 className="text-xl font-bold text-blue-300 border-b border-slate-800 pb-4">市場三種走勢分析</h3>
+                                        <ul className="space-y-6">
+                                            <li className="flex items-start gap-4">
+                                                <div className="bg-emerald-500/20 p-2 rounded-xl text-emerald-400 mt-1"><Icons.TrendingUp /></div>
+                                                <div>
+                                                    <p className="font-bold">大漲 / 大跌</p>
+                                                    <p className="text-sm text-slate-500">買方有機會獲取數倍利潤，賣方風險大。</p>
+                                                </div>
+                                            </li>
+                                            <li className="flex items-start gap-4">
+                                                <div className="bg-blue-500/20 p-2 rounded-xl text-blue-400 mt-1"><Icons.Minus /></div>
+                                                <div>
+                                                    <p className="font-bold text-blue-400">橫盤盤整 (機率最高)</p>
+                                                    <p className="text-sm text-slate-500">買方每天流失時間價值，賣方穩收租金。</p>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                {/* Probability Distribution Section */}
+                                <div className="bg-slate-900 p-10 rounded-3xl border border-slate-800 relative overflow-hidden">
+                                    <div className="text-center mb-12"> {/* 增加 Margin Bottom 避免文字被擋住 */}
+                                        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                                            Probability Distribution
+                                        </span>
+                                        <h3 className="text-2xl font-black mt-4 text-white">機率分配圖 (常態分配)</h3>
+                                    </div>
+                                    
+                                    <div className="relative h-48 flex items-end justify-center gap-2 px-4 mt-8"> {/* 增加 Margin Top */}
+                                        {[15, 30, 55, 85, 105, 120, 105, 85, 55, 30, 15].map((h, i) => (
+                                            <div 
+                                                key={i} 
+                                                style={{ height: `${h}%` }} 
+                                                className={`w-full rounded-t-md transition-all duration-700 hover:brightness-125 ${i > 3 && i < 7 ? 'bg-blue-500' : 'bg-slate-800'}`}
+                                            ></div>
+                                        ))}
+                                        {/* Overlay Labels */}
+                                        <div className="absolute inset-x-0 -bottom-8 flex justify-between text-[11px] font-bold text-slate-500 px-2">
+                                            <span>極端行情</span>
+                                            <span className="text-blue-400">常態波動 (70%)</span>
+                                            <span>極端行情</span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-16 pt-6 border-t border-slate-800/50">
+                                        <p className="text-slate-500 text-sm italic leading-relaxed">
+                                            * 統計顯示市場約有 70% 的時間處於盤整，這就是賣方「高勝率」的科學依據。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'buyer' && (
+                            <div className="grid md:grid-cols-2 gap-12 items-center">
+                                <div className="space-y-8">
+                                    <h2 className="text-4xl font-black text-emerald-400">買方：風險有限，獲利無限</h2>
+                                    <p className="text-slate-400 text-lg">
+                                        你是權利的擁有者。你支付「保費」來換取一個可能爆發的機會。
+                                    </p>
+                                    <div className="grid gap-4">
+                                        <div className="flex gap-5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                                            <div className="text-emerald-400 bg-emerald-400/10 p-3 rounded-xl h-fit"><Icons.AlertTriangle /></div>
+                                            <div>
+                                                <p className="font-bold text-white text-xl mb-1">勝率約 25%</p>
+                                                <p className="text-slate-500">你需要方向看對，且幅度要夠大才能 cover 成本。</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                                            <div className="text-emerald-400 bg-emerald-400/10 p-3 rounded-xl h-fit"><Icons.Target /></div>
+                                            <div>
+                                                <p className="font-bold text-white text-xl mb-1">獲利爆發力強</p>
+                                                <p className="text-slate-500">最大損失僅為權利金，但獲利可以翻好幾倍。</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-6">
+                                    <p className="text-center font-bold text-slate-500 uppercase tracking-widest text-xs">Long Call Payoff Diagram</p>
+                                    <PayoffDiagram type="buyer_call" />
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'seller' && (
+                            <div className="grid md:grid-cols-2 gap-12 items-center">
+                                <div className="order-2 md:order-1 space-y-6">
+                                    <p className="text-center font-bold text-slate-500 uppercase tracking-widest text-xs">Short Call Payoff Diagram</p>
+                                    <PayoffDiagram type="seller_call" />
+                                </div>
+                                <div className="order-1 md:order-2 space-y-8">
+                                    <h2 className="text-4xl font-black text-red-500">賣方：獲利有限，風險巨大</h2>
+                                    <p className="text-slate-400 text-lg">
+                                        你是義務的承擔者。你像保險公司，收取保費並承擔小機率的賠償風險。
+                                    </p>
+                                    <div className="grid gap-4">
+                                        <div className="flex gap-5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                                            <div className="text-red-500 bg-red-500/10 p-3 rounded-xl h-fit"><Icons.ShieldCheck /></div>
+                                            <div>
+                                                <p className="font-bold text-white text-xl mb-1">勝率約 75%</p>
+                                                <p className="text-slate-500">只要行情不要漲過「損益平衡點」，你都能獲利。</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                                            <div className="text-red-500 bg-red-500/10 p-3 rounded-xl h-fit"><Icons.AlertTriangle /></div>
+                                            <div>
+                                                <p className="font-bold text-white text-xl mb-1">風險控制是關鍵</p>
+                                                <p className="text-slate-500">平時穩定收租，但一旦大象翻身，必須果斷停損。</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'comparison' && (
+                            <div className="bg-slate-900 rounded-[2rem] overflow-hidden border border-slate-800 shadow-2xl animate-fade-in">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="border-b border-slate-800 bg-slate-800/30">
+                                                <th className="py-6 px-8 text-slate-500 font-bold uppercase tracking-wider text-sm">核心特徵</th>
+                                                <th className="py-6 px-8 text-emerald-400 font-black text-xl">買方 (Buyer)</th>
+                                                <th className="py-6 px-8 text-red-500 font-black text-xl">賣方 (Seller)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800">
+                                            <tr className="hover:bg-slate-800/20 transition-colors">
+                                                <td className="py-8 px-8 font-bold text-slate-300 text-lg">獲利機率</td>
+                                                <td className="py-8 px-8"><span className="bg-emerald-500/10 text-emerald-400 px-4 py-1 rounded-full font-black">低勝率</span></td>
+                                                <td className="py-8 px-8"><span className="bg-red-500/10 text-red-500 px-4 py-1 rounded-full font-black">高勝率</span></td>
+                                            </tr>
+                                            <tr className="hover:bg-slate-800/20 transition-colors">
+                                                <td className="py-8 px-8 font-bold text-slate-300 text-lg">時間價值 (Theta)</td>
+                                                <td className="py-8 px-8 text-red-400 font-bold underline decoration-red-500/30">每日扣血 (負 Theta)</td>
+                                                <td className="py-8 px-8 text-emerald-400 font-bold underline decoration-emerald-500/30">每日收租 (正 Theta)</td>
+                                            </tr>
+                                            <tr className="hover:bg-slate-800/20 transition-colors">
+                                                <td className="py-8 px-8 font-bold text-slate-300 text-lg">最大虧損</td>
+                                                <td className="py-8 px-8">權利金 (已預知)</td>
+                                                <td className="py-8 px-8 text-red-400 font-bold">理論無限 (需保證金)</td>
+                                            </tr>
+                                            <tr className="hover:bg-slate-800/20 transition-colors">
+                                                <td className="py-8 px-8 font-bold text-slate-300 text-lg">角色譬喻</td>
+                                                <td className="py-8 px-8">買樂透、買保險的人</td>
+                                                <td className="py-8 px-8">開賭場、賣保險的公司</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <footer className="mt-24 py-12 border-t border-slate-900 text-center">
+                        <p className="text-slate-600 font-bold tracking-widest uppercase text-xs mb-2">Options Mastery Course</p>
+                        <p className="text-slate-500">© 2024 選擇權教學中心 | 理解風險，才能擁抱獲利</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        // Render the app after everything is ready
+        window.addEventListener('load', () => {
+            const rootElement = document.getElementById('root');
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(<App />);
+            // 顯現 root 內容
+            rootElement.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
