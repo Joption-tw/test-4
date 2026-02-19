@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權大師：結算機制與到期效應</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-node {
+            position: relative;
+        }
+
+        .step-node::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .step-node:last-child::after {
+            display: none;
+        }
+
+        .decay-bar {
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- 導覽列 -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">Option<span class="text-blue-600">Master</span></span>
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                <a href="#mechanism" class="hover:text-blue-600">結算機制</a>
+                <a href="#effects" class="hover:text-blue-600">到期效應</a>
+                <a href="#strategy" class="hover:text-blue-600">實戰建議</a>
+            </div>
+            <button class="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition">
+                開始學習
+            </button>
+        </div>
+    </nav>
+
+    <header class="py-16 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <span class="text-blue-600 font-bold tracking-widest text-sm uppercase mb-4 block">進階課程 04</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                結算機制與到期效應：<br><span class="gradient-text">掌握最後一哩路的勝機</span>
+            </h1>
+            <p class="text-lg text-slate-600 leading-relaxed mb-8">
+                選擇權與股票最大的不同在於「時間」。當合約接近終點，市場的引力將會改變，了解這些物理規律，你才能在結算日當獵人，而非獵物。
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 pb-20">
+
+        <!-- 結算機制區塊 -->
+        <section id="mechanism" class="mb-20">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="bg-blue-100 p-2 rounded-lg">
+                    <i class="fas fa-gears text-blue-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold">結算機制 (Settlement)</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass-card p-8 rounded-3xl">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-money-bill-transfer mr-2 text-green-500"></i> 現金結算 vs 實物交割
+                    </h3>
+                    <div class="space-y-4 text-slate-600">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-900">現金結算 (Cash Settlement)</span>
+                            <p class="text-sm mt-1">台指選擇權、多數指數選擇權採用。結算時不交換股票，僅根據價差計算現金盈虧。</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-900">實物交割 (Physical Delivery)</span>
+                            <p class="text-sm mt-1">個股選擇權採用。買方有權「真的」以履約價買入或賣出股票，需準備足夠交割款。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-calculator mr-2 text-blue-500"></i> 結算價如何計算？
+                    </h3>
+                    <p class="text-slate-600 mb-6">以台灣市場為例，最重要的就是「最後結算價」的計算方式：</p>
+                    <div class="relative pl-8 space-y-6">
+                        <div class="step-node">
+                            <div class="absolute -left-10 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                            <h4 class="font-bold">採樣時間</h4>
+                            <p class="text-sm text-slate-500">結算當日 13:00 至 13:30 (收盤前30分鐘)。</p>
+                        </div>
+                        <div class="step-node">
+                            <div class="absolute -left-10 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                            <h4 class="font-bold">計算邏輯</h4>
+                            <p class="text-sm text-slate-500">取該段時間內標的指數之「簡單算術平均數」。</p>
+                        </div>
+                        <div class="step-node">
+                            <div class="absolute -left-10 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                            <h4 class="font-bold">自動履約</h4>
+                            <p class="text-sm text-slate-500">價內合約超過點數（通常為0.01點）會自動參與結算，無需手動操作。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 到期效應區塊 -->
+        <section id="effects" class="mb-20">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="bg-purple-100 p-2 rounded-lg">
+                    <i class="fas fa-bolt text-purple-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold">到期效應 (Expiration Effects)</h2>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <!-- Theta 效應 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-hourglass-end text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Theta 加速衰減</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            越接近到期，時間價值掉得越快。尤其是「價外 (OTM)」合約，最後 48 小時價值可能直接歸零。
+                        </p>
+                    </div>
+
+                    <!-- Gamma 效應 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-wave-square text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Gamma 爆炸性</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            接近履約價的合約，Delta 會因標的小幅波動而劇烈跳動。這是「買方」倍數獲利的機會，也是「賣方」的噩夢。
+                        </p>
+                    </div>
+
+                    <!-- 引力效應 -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-magnet text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">磁吸效應 (Pinning)</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            市場莊家為了降低結算損失，常會試圖將指數「壓制」在最大未平倉量（Max Pain）附近的履約價。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 互動圖表模擬：最後七天權利金縮減 -->
+                <div class="mt-8 p-8 bg-slate-900 rounded-3xl text-white shadow-2xl overflow-hidden relative">
+                    <!-- 背景標誌 -->
+                    <div class="absolute top-[-20px] right-[-20px] opacity-10 text-[120px] font-bold italic select-none">THETA</div>
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 relative z-10">
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-400">末日權利金衰減模擬 <span class="text-sm font-normal text-slate-400 ml-2">(剩餘價值 %)</span></h4>
+                            <p class="text-xs text-slate-400 mt-1">越接近結算，每日流失的百分比越劇烈。</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex items-center space-x-3">
+                             <div class="px-4 py-2 bg-slate-800 rounded-xl border border-slate-700 text-center">
+                                <span class="text-[10px] text-slate-500 block uppercase tracking-tighter">當前天數</span>
+                                <span id="days-label" class="text-lg font-mono font-bold text-blue-400">第 7 天</span>
+                            </div>
+                            <div class="px-4 py-2 bg-red-900/30 rounded-xl border border-red-800/50 text-center">
+                                <span class="text-[10px] text-red-400 block uppercase tracking-tighter">今日流失</span>
+                                <span id="loss-label" class="text-lg font-mono font-bold text-red-500">- 0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 圖表區 -->
+                    <div class="relative h-64 flex items-end px-2 space-x-1 md:space-x-4 border-b border-slate-700 pb-2 mb-4">
+                        <!-- Y軸標註 (100% / 0%) -->
+                        <div class="absolute -left-1 top-0 text-[10px] text-slate-500 font-mono">100%</div>
+                        <div class="absolute -left-1 bottom-2 text-[10px] text-slate-500 font-mono">0%</div>
+                        
+                        <!-- 動態柱狀圖 -->
+                        <div id="chart-bars" class="w-full h-full flex items-end justify-between px-4">
+                            <!-- JS 會生成柱子 -->
+                        </div>
+                    </div>
+
+                    <!-- X軸標註 -->
+                    <div class="flex justify-between px-6 text-[10px] text-slate-500 font-mono">
+                        <span>第 7 天</span>
+                        <span>第 6 天</span>
+                        <span>第 5 天</span>
+                        <span>第 4 天</span>
+                        <span>第 3 天</span>
+                        <span>第 2 天</span>
+                        <span>第 1 天</span>
+                        <span class="text-red-500 font-bold">結算日</span>
+                    </div>
+
+                    <!-- 滑桿區 -->
+                    <div class="mt-12 bg-slate-800/40 p-6 rounded-2xl border border-slate-700">
+                        <div class="flex justify-between items-center text-xs mb-4 text-slate-300">
+                            <span><i class="fas fa-hand-pointer mr-2 text-blue-500"></i>拖動滑桿觀察「價值蒸發」過程：</span>
+                            <span class="bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/30">從左向右流逝</span>
+                        </div>
+                        <input type="range" id="time-slider" min="0" max="7" step="1" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 實戰建議 -->
+        <section id="strategy" class="mb-10">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="bg-orange-100 p-2 rounded-lg">
+                    <i class="fas fa-lightbulb text-orange-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold">結算日實戰策略建議</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-2 border-dashed border-slate-200 rounded-3xl p-6">
+                    <h4 class="text-red-600 font-bold mb-4 flex items-center">
+                        <i class="fas fa-shield-halved mr-2"></i> 給賣方的警告 (Sellers)
+                    </h4>
+                    <ul class="space-y-3 text-slate-600 text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            避免在結算當日持有「近價位」賣單，Gamma 風險可能讓你瞬間大賠。
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            結算前若已有 80% 獲利，建議先平倉保本，「最後一毛錢」最危險。
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-200 rounded-3xl p-6">
+                    <h4 class="text-blue-600 font-bold mb-4 flex items-center">
+                        <i class="fas fa-bolt-lightning mr-2"></i> 給買方的機會 (Buyers)
+                    </h4>
+                    <ul class="space-y-3 text-slate-600 text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            利用「末日樂透」策略，在結算日當天尋找趨勢發動的突破點。
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            控制投入資金（不超過總資產1%），因為結算日多數合約將會歸零。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 結語 -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-700 rounded-3xl p-10 text-white text-center shadow-xl">
+            <h3 class="text-2xl font-bold mb-4">準備好面對下個結算日了嗎？</h3>
+            <p class="mb-8 opacity-90">記住，結算不是結束，而是下一個合約週期的開始。保持冷靜，看準結算價的磁吸力。</p>
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <button onclick="showQuiz()" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:shadow-lg transition">
+                    自我檢測小測驗
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 測驗彈窗 -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 relative">
+            <button onclick="hideQuiz()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div id="quiz-content">
+                <span class="text-blue-600 font-bold text-sm">知識挑戰</span>
+                <h4 class="text-xl font-bold mt-2 mb-6">台指選擇權結算價是取哪段時間的平均？</h4>
+                <div class="space-y-3">
+                    <button onclick="checkAnswer(false)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 transition">A. 開盤前 30 分鐘</button>
+                    <button onclick="checkAnswer(true)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 transition">B. 收盤前 30 分鐘 (13:00-13:30)</button>
+                    <button onclick="checkAnswer(false)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 transition">C. 全天交易時間平均</button>
+                </div>
+            </div>
+            <div id="quiz-result" class="hidden text-center py-8">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-3xl"></i>
+                </div>
+                <h4 class="text-2xl font-bold text-slate-800 mb-2">完全正確！</h4>
+                <p class="text-slate-500">看來你已經掌握了結算機制的核心概念。這 30 分鐘的波動將決定你的合約生死。</p>
+                <button onclick="hideQuiz()" class="mt-8 bg-slate-900 text-white px-8 py-2 rounded-full font-bold">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-500 text-sm">
+            <p>© 2024 選擇權教學網站 - 投資有風險，本文僅供教育參考，不構成投資建議。</p>
+        </div>
+    </footer>
+
+    <script>
+        const chartContainer = document.getElementById('chart-bars');
+        const slider = document.getElementById('time-slider');
+        const daysLabel = document.getElementById('days-label');
+        const lossLabel = document.getElementById('loss-label');
+
+        // 定義最後七天的價值百分比 (基於 Square Root 模型: Value = sqrt(days/7)*100)
+        // 這樣在最後一天的變化斜率最大
+        const getValues = () => {
+            let arr = [];
+            for(let i=7; i>=0; i--) {
+                const val = Math.sqrt(i/7) * 100;
+                arr.push(parseFloat(val.toFixed(1)));
+            }
+            return arr; // [100, 92.6, 84.5, 75.6, 65.5, 53.5, 37.8, 0]
+        };
+
+        const premiumValues = getValues();
+
+        function updateChart(sliderIdx) {
+            const currentDayDisplay = 7 - sliderIdx;
+            daysLabel.innerText = '第 ' + currentDayDisplay + ' 天';
+            
+            // 計算本日流失量
+            let loss = 0;
+            if (sliderIdx > 0) {
+                loss = (premiumValues[sliderIdx-1] - premiumValues[sliderIdx]).toFixed(1);
+            }
+            lossLabel.innerText = sliderIdx === 0 ? '- 0%' : `- ${loss}%`;
+
+            chartContainer.innerHTML = '';
+            
+            // 繪製柱子
+            premiumValues.forEach((val, idx) => {
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex-1 flex flex-col items-center h-full justify-end relative';
+                
+                // 數值百分比標籤
+                const label = document.createElement('div');
+                label.className = 'text-[9px] font-mono mb-1 transition-opacity duration-300';
+                label.innerText = val + '%';
+
+                const bar = document.createElement('div');
+                bar.className = 'w-full max-w-[32px] decay-bar rounded-t-sm relative';
+                bar.style.height = val + '%';
+                
+                // 邏輯狀態著色
+                if (idx < sliderIdx) {
+                    // 已流逝的天數
+                    bar.style.backgroundColor = '#1e293b'; // 深色
+                    bar.style.opacity = '0.15';
+                    label.style.opacity = '0.2';
+                } else if (idx === sliderIdx) {
+                    // 當前指針天數
+                    // 顏色隨天數變紅
+                    const redRatio = (idx / 7) * 255;
+                    const blueRatio = 255 - redRatio;
+                    bar.style.backgroundColor = `rgb(${redRatio}, 99, ${blueRatio})`;
+                    bar.classList.add('ring-4', 'ring-blue-400/20', 'z-10');
+                    label.className = 'text-[11px] font-bold text-blue-400 mb-1';
+                } else {
+                    // 未來的天數
+                    bar.style.backgroundColor = '#334155';
+                    bar.style.opacity = '0.4';
+                    label.style.opacity = '0.5';
+                }
+
+                // 在柱子內部顯示流失速度的提示 (僅在加速階段)
+                if (idx === sliderIdx && idx >= 5) {
+                    const alert = document.createElement('div');
+                    alert.innerHTML = '<i class="fas fa-caret-down"></i>快速衰退';
+                    alert.className = 'absolute -top-10 text-[9px] text-red-500 font-bold whitespace-nowrap animate-bounce';
+                    barWrapper.appendChild(alert);
+                }
+
+                barWrapper.appendChild(label);
+                barWrapper.appendChild(bar);
+                chartContainer.appendChild(barWrapper);
+            });
+        }
+
+        slider.addEventListener('input', (e) => {
+            updateChart(parseInt(e.target.value));
+        });
+
+        // 初始載入
+        updateChart(0);
+
+        // 測驗邏輯
+        function showQuiz() {
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            document.getElementById('quiz-modal').classList.add('flex');
+        }
+
+        function hideQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.remove('flex');
+        }
+
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                document.getElementById('quiz-content').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
