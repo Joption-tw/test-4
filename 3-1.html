@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇權大師：結算機制與到期效應</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-node {
+            position: relative;
+        }
+
+        .step-node::after {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 32px;
+            bottom: -16px;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .step-node:last-child::after {
+            display: none;
+        }
+
+        .decay-bar {
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease;
+        }
+
+        /* 手機版微調 */
+        @media (max-width: 640px) {
+            .step-node::after {
+                left: 14px;
+            }
+            .decay-bar {
+                max-width: 24px !important;
+            }
+            .chart-label {
+                font-size: 8px !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- 導覽列 -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-chart-line text-blue-600 text-xl md:text-2xl"></i>
+                <span class="text-lg md:text-xl font-bold tracking-tight">Option<span class="text-blue-600">Master</span></span>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs md:text-sm font-bold hover:bg-blue-700 transition">
+                開始學習
+            </button>
+        </div>
+    </nav>
+
+    <!-- 標頭 -->
+    <header class="py-10 md:py-16 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <span class="text-blue-600 font-bold tracking-widest text-xs md:text-sm uppercase mb-3 block">進階課程 04</span>
+            <h1 class="text-3xl md:text-6xl font-extrabold mb-6 leading-tight">
+                結算機制與到期效應：<br><span class="gradient-text">掌握最後一哩路的勝機</span>
+            </h1>
+            <p class="text-base md:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                選擇權與股票最大的不同在於「時間」。當合約接近終點，市場的引力將改變，掌握規律才能成為獵人。
+            </p>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl mx-auto pb-20">
+
+        <!-- 結算機制區塊 -->
+        <section id="mechanism" class="mb-12 md:mb-20 px-4">
+            <div class="flex items-center space-x-3 mb-6 md:mb-8">
+                <div class="bg-blue-100 p-2 rounded-lg">
+                    <i class="fas fa-gears text-blue-600"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">結算機制 (Settlement)</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 md:gap-8">
+                <div class="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-200">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-money-bill-transfer mr-2 text-green-500"></i> 交割方式比較
+                    </h3>
+                    <div class="space-y-3 text-slate-600">
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-900 block text-sm md:text-base">現金結算 (Cash Settlement)</span>
+                            <p class="text-xs md:text-sm mt-1">台指選擇權採用。不交換股票，僅根據價差計算現金盈虧。</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-900 block text-sm md:text-base">實物交割 (Physical Delivery)</span>
+                            <p class="text-xs md:text-sm mt-1">個股選擇權採用。買方有權以履約價買入或賣出真實股票。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-200">
+                    <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-calculator mr-2 text-blue-500"></i> 結算價如何計算？
+                    </h3>
+                    <div class="relative pl-8 space-y-6">
+                        <div class="step-node">
+                            <div class="absolute -left-8 md:-left-10 w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">1</div>
+                            <h4 class="font-bold text-sm md:text-base">採樣時間</h4>
+                            <p class="text-xs md:text-sm text-slate-500">結算當日 13:00 至 13:30 (收盤前30分鐘)。</p>
+                        </div>
+                        <div class="step-node">
+                            <div class="absolute -left-8 md:-left-10 w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">2</div>
+                            <h4 class="font-bold text-sm md:text-base">計算邏輯</h4>
+                            <p class="text-xs md:text-sm text-slate-500">取該段時間內標的指數之「簡單算術平均數」。</p>
+                        </div>
+                        <div class="step-node">
+                            <div class="absolute -left-8 md:-left-10 w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs md:text-sm">3</div>
+                            <h4 class="font-bold text-sm md:text-base">自動履約</h4>
+                            <p class="text-xs md:text-sm text-slate-500">價內合約超過 0.01 點即會自動結算。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 到期效應區塊 -->
+        <section id="effects" class="mb-12 md:mb-20 px-4">
+            <div class="flex items-center space-x-3 mb-6 md:mb-8">
+                <div class="bg-purple-100 p-2 rounded-lg">
+                    <i class="fas fa-bolt text-purple-600"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">到期效應 (Expiration Effects)</h2>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10">
+                    <div class="text-center">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-hourglass-end text-xl md:text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base md:text-lg mb-1">Theta 加速衰減</h3>
+                        <p class="text-xs md:text-sm text-slate-500 px-2">最後 48 小時，價外合約價值可能瞬間歸零。</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-wave-square text-xl md:text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base md:text-lg mb-1">Gamma 爆炸性</h3>
+                        <p class="text-xs md:text-sm text-slate-500 px-2">標的小幅波動會導致 Delta 劇烈跳動。</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-magnet text-xl md:text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-base md:text-lg mb-1">磁吸效應 (Pinning)</h3>
+                        <p class="text-xs md:text-sm text-slate-500 px-2">結算價常會趨向未平倉量最大的履約價。</p>
+                    </div>
+                </div>
+
+                <!-- 互動圖表 -->
+                <div class="mt-8 p-4 md:p-8 bg-slate-900 rounded-2xl md:rounded-3xl text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-[-20px] right-[-20px] opacity-10 text-[80px] md:text-[120px] font-bold italic select-none">THETA</div>
+                    
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 relative z-10">
+                        <div>
+                            <h4 class="text-lg md:text-xl font-bold text-blue-400">末日權利金衰減模擬</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 mt-1">越接近結算，價值蒸發越劇烈。</p>
+                        </div>
+                        <div class="mt-4 md:mt-0 flex items-center space-x-2">
+                             <div class="px-3 py-1.5 bg-slate-800 rounded-xl border border-slate-700 text-center">
+                                <span class="text-[8px] text-slate-500 block uppercase">當前</span>
+                                <span id="days-label" class="text-sm md:text-lg font-mono font-bold text-blue-400">D-7</span>
+                            </div>
+                            <div class="px-3 py-1.5 bg-red-900/30 rounded-xl border border-red-800/50 text-center">
+                                <span class="text-[8px] text-red-400 block uppercase">流失</span>
+                                <span id="loss-label" class="text-sm md:text-lg font-mono font-bold text-red-500">-0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 圖表區 -->
+                    <div class="relative h-48 md:h-64 flex items-end px-1 md:px-2 space-x-1 md:space-x-4 border-b border-slate-700 pb-2 mb-4">
+                        <div class="absolute -left-1 top-0 text-[8px] md:text-[10px] text-slate-500 font-mono">100%</div>
+                        <div id="chart-bars" class="w-full h-full flex items-end justify-between px-2 md:px-4">
+                            <!-- JS 生成 -->
+                        </div>
+                    </div>
+
+                    <!-- X軸 -->
+                    <div class="flex justify-between px-2 md:px-6 text-[8px] md:text-[10px] text-slate-500 font-mono">
+                        <span>D-7</span><span>D-6</span><span>D-5</span><span>D-4</span><span>D-3</span><span>D-2</span><span>D-1</span><span class="text-red-500 font-bold">結算</span>
+                    </div>
+
+                    <!-- 滑桿 -->
+                    <div class="mt-8 md:mt-12 bg-slate-800/40 p-4 md:p-6 rounded-xl md:rounded-2xl border border-slate-700">
+                        <input type="range" id="time-slider" min="0" max="7" step="1" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-3">
+                            <span>拖動滑桿觀察「時間價值」流逝</span>
+                            <span class="text-blue-400">由左向右流逝</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 實戰建議 -->
+        <section id="strategy" class="mb-10 px-4">
+            <div class="flex items-center space-x-3 mb-6 md:mb-8">
+                <div class="bg-orange-100 p-2 rounded-lg">
+                    <i class="fas fa-lightbulb text-orange-600"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">實戰策略建議</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 md:gap-6">
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl md:rounded-3xl p-5 md:p-6 bg-white">
+                    <h4 class="text-red-600 font-bold mb-3 flex items-center text-sm md:text-base">
+                        <i class="fas fa-shield-halved mr-2"></i> 給賣方的警告
+                    </h4>
+                    <ul class="space-y-2 text-slate-600 text-xs md:text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            避免在結算日持有近價位賣單，Gamma 風險巨大。
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            獲利若達 80% 建議先平倉，「最後一毛錢」風險最高。
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl md:rounded-3xl p-5 md:p-6 bg-white">
+                    <h4 class="text-blue-600 font-bold mb-3 flex items-center text-sm md:text-base">
+                        <i class="fas fa-bolt-lightning mr-2"></i> 給買方的機會
+                    </h4>
+                    <ul class="space-y-2 text-slate-600 text-xs md:text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            「末日樂透」策略，尋找結算日趨勢發動的突破點。
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2 flex-shrink-0"></i>
+                            控制投入資金（不超過 1%），多數末日合約將歸零。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 結語 -->
+        <div class="px-4">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl md:rounded-3xl p-8 md:p-10 text-white text-center shadow-xl">
+                <h3 class="text-xl md:text-2xl font-bold mb-4">準備好面對下個結算日了嗎？</h3>
+                <p class="mb-6 opacity-90 text-sm md:text-base">記住，結算不是結束，而是下一個週期的開始。保持冷靜，看準磁吸力。</p>
+                <button onclick="showQuiz()" class="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:shadow-lg transition text-sm">
+                    自我檢測小測驗
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 測驗彈窗 -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl md:rounded-3xl max-w-lg w-full p-6 md:p-8 relative">
+            <button onclick="hideQuiz()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div id="quiz-content">
+                <span class="text-blue-600 font-bold text-xs md:text-sm">知識挑戰</span>
+                <h4 class="text-lg md:text-xl font-bold mt-2 mb-6">台指選擇權結算價是取哪段時間的平均？</h4>
+                <div class="space-y-3">
+                    <button onclick="checkAnswer(false)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 text-sm transition">A. 開盤前 30 分鐘</button>
+                    <button onclick="checkAnswer(true)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 text-sm transition">B. 收盤前 30 分鐘 (13:00-13:30)</button>
+                    <button onclick="checkAnswer(false)" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-blue-500 text-sm transition">C. 全天交易時間平均</button>
+                </div>
+            </div>
+            <div id="quiz-result" class="hidden text-center py-6">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-2xl"></i>
+                </div>
+                <h4 class="text-xl md:text-2xl font-bold text-slate-800 mb-2">完全正確！</h4>
+                <p class="text-sm text-slate-500">這 30 分鐘的平均價將決定你的合約最終價值。</p>
+                <button onclick="hideQuiz()" class="mt-8 bg-slate-900 text-white px-8 py-2 rounded-full font-bold">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-10 mt-10">
+        <div class="max-w-6xl mx-auto px-4 text-center text-slate-400 text-[10px] md:text-xs">
+            <p>© 2024 選擇權教學網站 - 投資有風險，本文僅供教育參考。</p>
+        </div>
+    </footer>
+
+    <script>
+        const chartContainer = document.getElementById('chart-bars');
+        const slider = document.getElementById('time-slider');
+        const daysLabel = document.getElementById('days-label');
+        const lossLabel = document.getElementById('loss-label');
+
+        const premiumValues = [100, 92.6, 84.5, 75.6, 65.5, 53.5, 37.8, 0];
+
+        function updateChart(sliderIdx) {
+            const currentDayDisplay = 7 - sliderIdx;
+            daysLabel.innerText = currentDayDisplay === 0 ? '結算日' : 'D-' + currentDayDisplay;
+            
+            let loss = 0;
+            if (sliderIdx > 0) {
+                loss = (premiumValues[sliderIdx-1] - premiumValues[sliderIdx]).toFixed(1);
+            }
+            lossLabel.innerText = sliderIdx === 0 ? '-0%' : `-${loss}%`;
+
+            chartContainer.innerHTML = '';
+            
+            premiumValues.forEach((val, idx) => {
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'flex-1 flex flex-col items-center h-full justify-end relative';
+                
+                const label = document.createElement('div');
+                label.className = 'chart-label text-[9px] font-mono mb-1 transition-opacity duration-300';
+                label.innerText = Math.round(val) + '%';
+
+                const bar = document.createElement('div');
+                bar.className = 'w-full max-w-[32px] decay-bar rounded-t-sm relative';
+                bar.style.height = val + '%';
+                
+                if (idx < sliderIdx) {
+                    bar.style.backgroundColor = '#1e293b';
+                    bar.style.opacity = '0.1';
+                    label.style.opacity = '0.1';
+                } else if (idx === sliderIdx) {
+                    const redRatio = (idx / 7) * 255;
+                    const blueRatio = 255 - redRatio;
+                    bar.style.backgroundColor = `rgb(${redRatio}, 99, ${blueRatio})`;
+                    bar.classList.add('ring-2', 'md:ring-4', 'ring-blue-400/20', 'z-10');
+                    label.className = 'chart-label text-[10px] md:text-[11px] font-bold text-blue-400 mb-1';
+                } else {
+                    bar.style.backgroundColor = '#334155';
+                    bar.style.opacity = '0.4';
+                    label.style.opacity = '0.4';
+                }
+
+                if (idx === sliderIdx && idx >= 5) {
+                    const alert = document.createElement('div');
+                    alert.innerHTML = '<i class="fas fa-caret-down"></i>';
+                    alert.className = 'absolute -top-6 text-[10px] text-red-500 animate-bounce';
+                    barWrapper.appendChild(alert);
+                }
+
+                barWrapper.appendChild(label);
+                barWrapper.appendChild(bar);
+                chartContainer.appendChild(barWrapper);
+            });
+        }
+
+        slider.addEventListener('input', (e) => {
+            updateChart(parseInt(e.target.value));
+        });
+
+        updateChart(0);
+
+        function showQuiz() {
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            document.getElementById('quiz-modal').classList.add('flex');
+        }
+
+        function hideQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.remove('flex');
+            document.getElementById('quiz-content').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+        }
+
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                document.getElementById('quiz-content').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
