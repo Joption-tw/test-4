@@ -16,11 +16,13 @@
         @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
         
         body { 
-            /* 優先使用圓體，帶出普利風的柔和感 */
+            /* 優先使用圓體 */
             font-family: 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif; 
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
             background-color: #f7f9f4; /* 淡淡的草綠色背景 */
+            /* 確保整頁由 body 處理捲動 */
+            overflow-y: auto; 
         }
 
         /* 進場動畫 */
@@ -31,35 +33,33 @@
         .submenu-enter { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .submenu-open { max-height: 2000px; }
 
-        /* 滾動條美化 - 圓潤木質調 */
+        /* 滾動條美化 */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
         
-        /* 測驗漸層背景：吉卜力夕陽雲彩風 */
+        /* 測驗漸層背景 */
         .quiz-gradient {
             background: linear-gradient(135deg, #fde047 0%, #fb923c 50%, #f43f5e 100%);
         }
 
-        /* 首頁主視覺漸層：魔法森林風 */
+        /* 首頁主視覺漸層 */
         .forest-gradient {
             background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
         }
 
-        /* 確保 iframe 在行動端高度正確且不溢出 */
+        /* Iframe 容器高度優化 - 整頁捲動模式下，此處需有足夠高度 */
         .iframe-container {
             position: relative;
             -webkit-overflow-scrolling: touch;
             flex: 1;
-            /* 手機端給予最小高度，防止塌陷，並讓外部可滾動 */
-            min-height: 80vh; 
+            min-height: 85vh; /* 確保內容區有足夠的存在感 */
         }
-        @media (min-width: 768px) {
-            .iframe-container {
-                min-height: 0;
-                height: 100%;
-            }
+        
+        /* 移除內容區內部的強制捲動，讓外部 body 捲動 */
+        .no-internal-scroll {
+            overflow: visible !important;
+            height: auto !important;
         }
     </style>
 </head>
@@ -187,10 +187,11 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col md:flex-row bg-[#f7f9f4] overflow-x-hidden">
-                    {/* Desktop Sidebar - 暖色米紙底色 */}
-                    <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] lg:w-[320px] bg-[#fffcf5] border-r-2 border-[#e7e5e4] transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
-                        <div className="h-full flex flex-col">
+                <div className="min-h-screen flex flex-col md:flex-row bg-[#f7f9f4]">
+                    {/* Desktop Sidebar - 調整為整頁捲動模式 */}
+                    {/* 修改重點：在 md 螢幕以上使用 sticky，並且不再限制高度，讓側邊欄內容隨整頁撐開 */}
+                    <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] lg:w-[320px] bg-[#fffcf5] border-r-2 border-[#e7e5e4] transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:sticky md:top-0 md:self-start md:min-h-screen`}>
+                        <div className="flex flex-col h-full">
                             {/* Logo & Brand */}
                             <div className="p-8 pb-6 flex items-center gap-4 cursor-pointer group" onClick={() => {setActiveChapterId('home'); setActiveSubIndex(null); setIsMenuOpen(false);}}>
                                 <div className="w-14 h-14 overflow-hidden rounded-[1.2rem] shadow-md shadow-amber-200/50 border-4 border-white group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
@@ -202,8 +203,8 @@
                                 </div>
                             </div>
 
-                            {/* Nav Items */}
-                            <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1.5">
+                            {/* Nav Items - 移除內部的捲動軸，讓其隨側邊欄撐開 */}
+                            <nav className="flex-1 px-4 py-2 space-y-1.5">
                                 <button 
                                     onClick={() => {setActiveChapterId('home'); setActiveSubIndex(null); setIsMenuOpen(false);}}
                                     className={`w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-[15px] font-bold transition-all ${activeChapterId === 'home' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200 translate-x-1' : 'text-stone-600 hover:bg-amber-50 hover:text-emerald-700'}`}
@@ -231,6 +232,7 @@
                                             </div>
                                         </button>
 
+                                        {/* 子章節選單：隨頁面長度展開 */}
                                         <div className={`submenu-enter ${activeChapterId === ch.id ? 'submenu-open' : ''}`}>
                                             <div className="pl-12 pr-2 py-2 space-y-1.5 border-l-2 border-dashed border-emerald-100 ml-6 mb-2 mt-1">
                                                 {ch.subpages.map((sub, sIdx) => (
@@ -256,8 +258,8 @@
                         </div>
                     </aside>
 
-                    {/* Main Workspace - 改為 md:h-screen 確保桌機版固定，手機版隨內容撐開 */}
-                    <main className="flex-1 flex flex-col min-h-screen md:h-screen relative min-w-0">
+                    {/* Main Workspace - 改為隨內容捲動模式 */}
+                    <main className="flex-1 flex flex-col min-h-screen relative min-w-0">
                         {/* Mobile Sticky Header */}
                         <header className="md:hidden flex items-center justify-between px-6 py-4 bg-[#fffcf5] border-b-2 border-stone-200 sticky top-0 z-40 w-full shadow-sm">
                             <div className="flex items-center gap-3" onClick={() => {setActiveChapterId('home'); setActiveSubIndex(null);}}>
@@ -269,9 +271,9 @@
                             </button>
                         </header>
 
-                        {/* Content Scroll Area - 移除手機版的 overflow-y-auto */}
-                        <div className="flex-1 md:overflow-y-auto flex flex-col">
-                            <div className="px-4 pt-4 pb-2 md:px-8 md:pt-8 md:pb-4 lg:px-12 lg:pt-12 lg:pb-6 flex-1 flex flex-col">
+                        {/* Content Area - 確保內容隨頁面延伸 */}
+                        <div className="flex-1 flex flex-col no-internal-scroll">
+                            <div className="px-4 pt-4 pb-2 md:px-8 md:pt-8 md:pb-4 lg:px-12 lg:pt-12 lg:pb-6 flex-1 flex flex-col no-internal-scroll">
                                 {activeChapterId === 'home' ? (
                                     /* Landing Page */
                                     <div className="animate-fade-in forest-gradient text-white p-8 md:p-16 rounded-[3rem] shadow-2xl shadow-emerald-900/20 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden">
@@ -304,10 +306,7 @@
                                     <div className="animate-fade-in flex-1 flex flex-col bg-[#fffcf5] rounded-[2.5rem] shadow-xl shadow-stone-200/50 border-4 border-white overflow-hidden">
                                         {activeSubIndex === null ? (
                                             /* Chapter Index View */
-                                            <div className="p-8 md:p-16 flex flex-col items-center flex-1 justify-center relative overflow-hidden">
-                                                <div className="absolute top-10 left-10 text-emerald-100 opacity-50"><Icons.Leaf /></div>
-                                                <div className="absolute bottom-20 right-10 text-amber-100 opacity-50 scale-150"><Icons.Zap /></div>
-
+                                            <div className="p-8 md:p-16 flex flex-col items-center flex-1 justify-center relative">
                                                 <div className="mb-4 text-emerald-500 font-extrabold tracking-[0.3em] text-xs md:text-sm uppercase bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">Joption Chapter</div>
                                                 <h2 className="text-3xl md:text-5xl font-black mb-4 text-emerald-950 text-center leading-tight">{currentChapter.title}</h2>
                                                 <p className="text-stone-500 mb-12 text-sm md:text-base font-bold text-center bg-stone-100 px-6 py-2 rounded-full">精熟十大基礎策略模型，如同背誦九九乘法表</p>
@@ -321,10 +320,7 @@
                                                     ))}
                                                 </div>
 
-                                                <div className="w-full max-w-4xl quiz-gradient rounded-[3rem] p-10 md:p-16 text-stone-900 shadow-2xl relative overflow-hidden group border-4 border-white">
-                                                    <div className="absolute -top-12 -right-12 p-12 opacity-10 group-hover:scale-150 transition-transform duration-1000 rotate-12 text-white">
-                                                        <Icons.ClipboardCheck />
-                                                    </div>
+                                                <div className="w-full max-w-4xl quiz-gradient rounded-[3rem] p-10 md:p-16 text-stone-900 shadow-2xl relative overflow-hidden group border-4 border-white mb-8">
                                                     <div className="relative z-10 text-center flex flex-col items-center space-y-6">
                                                         <h3 className="text-2xl md:text-4xl font-black tracking-wide text-white drop-shadow-md">
                                                             {currentChapter.quizTitle}
@@ -361,7 +357,7 @@
                                                     </div>
                                                 </div>
                                                 
-                                                {/* Iframe Content */}
+                                                {/* Iframe Content - 使用自適應高度 */}
                                                 <div className="iframe-container bg-[#fcfaf8]">
                                                     <iframe 
                                                         src={activeSubIndex === 'test' ? currentChapter.testUrl : currentChapter.subpages[activeSubIndex].url} 
@@ -376,7 +372,7 @@
                                     </div>
                                 )}
                                 
-                                <footer className="mt-auto pt-6 pb-2 text-center border-t-2 border-stone-200/60 shrink-0">
+                                <footer className="mt-8 pt-6 pb-6 text-center border-t-2 border-stone-200/60 shrink-0">
                                     <div className="flex justify-center items-center gap-2 mb-2 opacity-60">
                                         <img src={ipImageUrl} className="w-5 h-5 rounded-full border border-stone-300 object-cover" alt="Footer Logo" />
                                         <span className="font-extrabold text-stone-500 text-[11px] md:text-xs tracking-[0.2em] uppercase">JOPTION | 歐大選擇權教室</span>
