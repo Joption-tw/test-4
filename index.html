@@ -47,7 +47,9 @@
             const [activeSubIndex, setActiveSubIndex] = useState(null);
             const [isMenuOpen, setIsMenuOpen] = useState(true);
 
-            // --- 連結設定區：請在這裡修改您的 HTML 檔案路徑 ---
+            // 設定 IP 圖片路徑
+            const ipImageUrl = "ip標籤.jpg";
+
             const chapters = [
                 {
                     id: 'ch1',
@@ -150,9 +152,11 @@
                     {/* Sidebar */}
                     <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-100 transform transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
                         <div className="h-full flex flex-col">
-                            {/* Logo / Header */}
+                            {/* Logo / Header - 加入 IP 圖片作為 Logo */}
                             <div className="p-8 pb-4 flex items-center gap-3 cursor-pointer" onClick={() => {setActiveChapterId('home'); setActiveSubIndex(null);}}>
-                                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">Ω</div>
+                                <div className="w-10 h-10 overflow-hidden rounded-xl shadow-lg border border-gray-100">
+                                    <img src={ipImageUrl} alt="Logo" className="w-full h-full object-cover" />
+                                </div>
                                 <h2 className="text-xl font-black tracking-tighter">選擇權百科</h2>
                             </div>
 
@@ -210,7 +214,7 @@
                         {/* Mobile Header */}
                         <header className="md:hidden flex items-center justify-between p-4 bg-white border-b sticky top-0 z-40 w-full shadow-sm">
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">Ω</div>
+                                <img src={ipImageUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
                                 <span className="font-black text-gray-800 tracking-tighter">教學百科</span>
                             </div>
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
@@ -220,14 +224,29 @@
 
                         <div className="p-4 md:p-10 lg:p-12 flex-1 flex flex-col">
                             {activeChapterId === 'home' ? (
-                                <div className="animate-fade-in bg-gradient-to-br from-indigo-700 to-blue-900 text-white p-12 rounded-3xl shadow-2xl">
-                                    <h1 className="text-4xl md:text-5xl font-black mb-6 text-white leading-tight">掌握選擇權：<br/>獲利與風險的平衡藝術</h1>
-                                    <p className="text-lg opacity-80 max-w-2xl mb-10">
-                                        這是一套完整的交易地圖。從第一章開始，我們將一步步揭開衍生性商品的神秘面紗，建立穩健的交易體系。
-                                    </p>
-                                    <button onClick={() => setActiveChapterId('ch1')} className="bg-white text-blue-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-50 transition-all flex items-center gap-2">
-                                        開始第一章學習 <Icons.ChevronRight />
-                                    </button>
+                                <div className="animate-fade-in bg-gradient-to-br from-indigo-700 to-blue-900 text-white p-8 md:p-12 rounded-3xl shadow-2xl flex flex-col lg:flex-row items-center gap-10">
+                                    <div className="flex-1">
+                                        <h1 className="text-4xl md:text-5xl font-black mb-6 text-white leading-tight">掌握選擇權：<br/>獲利與風險的平衡藝術</h1>
+                                        <p className="text-lg opacity-80 max-w-2xl mb-10">
+                                            這是一套完整的交易地圖。從第一章開始，我們將一步步揭開衍生性商品的神秘面紗，建立穩健的交易體系。
+                                        </p>
+                                        <div className="flex flex-wrap gap-4">
+                                            <button onClick={() => setActiveChapterId('ch1')} className="bg-white text-blue-900 px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-50 transition-all flex items-center gap-2">
+                                                開始第一章學習 <Icons.ChevronRight />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {/* 首頁右側展示 IP 圖片 */}
+                                    <div className="w-full lg:w-1/3 shrink-0">
+                                        <div className="relative group">
+                                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                                            <img 
+                                                src={ipImageUrl} 
+                                                alt="Joption IP" 
+                                                className="relative w-full h-auto rounded-2xl shadow-xl border-4 border-white/10 transform hover:scale-105 transition-transform duration-500" 
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="animate-fade-in flex-1 flex flex-col">
