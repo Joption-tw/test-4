@@ -52,7 +52,14 @@
             position: relative;
             -webkit-overflow-scrolling: touch;
             flex: 1;
-            height: 100%;
+            /* 手機端給予最小高度，防止塌陷，並讓外部可滾動 */
+            min-height: 80vh; 
+        }
+        @media (min-width: 768px) {
+            .iframe-container {
+                min-height: 0;
+                height: 100%;
+            }
         }
     </style>
 </head>
@@ -62,7 +69,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // 將所有 Icon 的 strokeWidth 調為 2.5，增加卡通 Q 版的粗框感
         const Icons = {
             Home: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>,
             Book: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>,
@@ -181,7 +187,7 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col md:flex-row bg-[#f7f9f4] overflow-hidden">
+                <div className="min-h-screen flex flex-col md:flex-row bg-[#f7f9f4] overflow-x-hidden">
                     {/* Desktop Sidebar - 暖色米紙底色 */}
                     <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] lg:w-[320px] bg-[#fffcf5] border-r-2 border-[#e7e5e4] transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
                         <div className="h-full flex flex-col">
@@ -250,8 +256,8 @@
                         </div>
                     </aside>
 
-                    {/* Main Workspace */}
-                    <main className="flex-1 flex flex-col h-screen relative min-w-0">
+                    {/* Main Workspace - 改為 md:h-screen 確保桌機版固定，手機版隨內容撐開 */}
+                    <main className="flex-1 flex flex-col min-h-screen md:h-screen relative min-w-0">
                         {/* Mobile Sticky Header */}
                         <header className="md:hidden flex items-center justify-between px-6 py-4 bg-[#fffcf5] border-b-2 border-stone-200 sticky top-0 z-40 w-full shadow-sm">
                             <div className="flex items-center gap-3" onClick={() => {setActiveChapterId('home'); setActiveSubIndex(null);}}>
@@ -263,15 +269,13 @@
                             </button>
                         </header>
 
-                        {/* Content Scroll Area */}
-                        <div className="flex-1 overflow-y-auto flex flex-col">
+                        {/* Content Scroll Area - 移除手機版的 overflow-y-auto */}
+                        <div className="flex-1 md:overflow-y-auto flex flex-col">
                             <div className="px-4 pt-4 pb-2 md:px-8 md:pt-8 md:pb-4 lg:px-12 lg:pt-12 lg:pb-6 flex-1 flex flex-col">
                                 {activeChapterId === 'home' ? (
-                                    /* Landing Page - 魔法森林漸層 */
+                                    /* Landing Page */
                                     <div className="animate-fade-in forest-gradient text-white p-8 md:p-16 rounded-[3rem] shadow-2xl shadow-emerald-900/20 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden">
-                                        {/* 裝飾性背景圓圈 */}
                                         <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-emerald-400 rounded-full blur-[100px] opacity-20"></div>
-                                        
                                         <div className="flex-1 text-center lg:text-left space-y-8 relative z-10">
                                             <div className="inline-flex items-center gap-2 px-5 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 text-emerald-50 text-sm font-bold tracking-widest shadow-inner">
                                                 <Icons.Leaf /> JOPTION ACADEMY
@@ -297,11 +301,10 @@
                                     </div>
                                 ) : (
                                     /* Lesson / Quiz Viewer */
-                                    <div className="animate-fade-in flex-1 flex flex-col min-h-0 bg-[#fffcf5] rounded-[2.5rem] shadow-xl shadow-stone-200/50 border-4 border-white overflow-hidden">
+                                    <div className="animate-fade-in flex-1 flex flex-col bg-[#fffcf5] rounded-[2.5rem] shadow-xl shadow-stone-200/50 border-4 border-white overflow-hidden">
                                         {activeSubIndex === null ? (
                                             /* Chapter Index View */
                                             <div className="p-8 md:p-16 flex flex-col items-center flex-1 justify-center relative overflow-hidden">
-                                                {/* 背景裝飾 */}
                                                 <div className="absolute top-10 left-10 text-emerald-100 opacity-50"><Icons.Leaf /></div>
                                                 <div className="absolute bottom-20 right-10 text-amber-100 opacity-50 scale-150"><Icons.Zap /></div>
 
@@ -340,7 +343,7 @@
                                             </div>
                                         ) : (
                                             /* Iframe Viewer */
-                                            <div className="flex-1 flex flex-col min-h-0 h-full">
+                                            <div className="flex-1 flex flex-col min-h-0">
                                                 {/* Header Bar */}
                                                 <div className="py-4 md:py-5 px-6 md:px-10 bg-white border-b-2 border-stone-100 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 shadow-sm z-10 rounded-t-[2.5rem]">
                                                     <div className="flex flex-col items-center sm:items-start text-center sm:text-left min-w-0">
@@ -373,7 +376,6 @@
                                     </div>
                                 )}
                                 
-                                {/* 超精簡結語：剛好 3 行，去除了多餘的邊距與間距 */}
                                 <footer className="mt-auto pt-6 pb-2 text-center border-t-2 border-stone-200/60 shrink-0">
                                     <div className="flex justify-center items-center gap-2 mb-2 opacity-60">
                                         <img src={ipImageUrl} className="w-5 h-5 rounded-full border border-stone-300 object-cover" alt="Footer Logo" />
