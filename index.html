@@ -41,14 +41,13 @@
             background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
         }
 
-        /* 核心修正：移除強迫性的 min-height，改用彈性高度 */
         .iframe-container {
             position: relative;
             width: 100%;
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 防止產生雙重滾動條 */
+            overflow: hidden; 
         }
         
         .iframe-container iframe {
@@ -56,12 +55,12 @@
             height: 100%;
             border: none;
             display: block;
-            min-height: calc(100dvh - 64px); /* 手機版扣除 header 的高度 */
+            min-height: calc(100dvh - 64px); 
         }
         
         @media (min-width: 768px) {
             .iframe-container iframe {
-                min-height: 100vh; /* 桌機版讓它完整呈現 */
+                min-height: 100vh; 
             }
         }
     </style>
@@ -145,15 +144,15 @@
                     testUrl: 'chap5-merged-test.html',
                     subpages: [
                         { title: '買進買權 (Long Call)', url: './5-1.html' },
-                        { title: '賣出買權 (Short Call)', url: './6-1.html' },
-                        { title: '買進賣權 (Long Put)', url: './5-2.html' },
-                        { title: '賣出賣權 (Short Put)', url: './6-2.html' },
-                        { title: '跨式組合 (Straddle)', url: './9-1.html' },
-                        { title: '勒式組合 (Strangle)', url: './9-2.html' },
-                        { title: '多頭價差 (Bull Spread)', url: './7-1.html' },
-                        { title: '空頭價差 (Bear Spread)', url: './7-2.html' },
-                        { title: '鐵禿鷹組合 (Iron Condor)', url: './7-3.html' },
-                        { title: '蝴蝶價差 (Butterfly)', url: './7-4.html' }
+                        { title: '賣出買權 (Short Call)', url: './5-2.html' },
+                        { title: '買進賣權 (Long Put)', url: './5-3.html' },
+                        { title: '賣出賣權 (Short Put)', url: './5-4.html' },
+                        { title: '雙賣組合 (Short Strangle)', url: './5-5.html' },
+                        { title: '雙買組合 (Long Strangle)', url: './5-6.html' },
+                        { title: '多頭價差 (Bull Spread)', url: './5-7.html' },
+                        { title: '空頭價差 (Bear Spread)', url: './5-8.html' },
+                        { title: '鐵禿鷹組合 (Iron Condor)', url: './5-9.html' },
+                        { title: '蝴蝶價差 (Butterfly)', url: './5-10.html' }
                     ]
                 },
                 {
@@ -244,7 +243,6 @@
                             </button>
                         </header>
 
-                        {/* 修正：當 activeSubIndex 有值時，移除外層的 Padding 和 Min-height 限制 */}
                         <div className={`flex-1 flex flex-col overflow-y-auto ${activeSubIndex !== null ? 'p-0' : 'p-4 md:p-8 lg:p-12'}`}>
                             {activeChapterId === 'home' ? (
                                 <div className="animate-fade-in forest-gradient text-white p-8 md:p-16 rounded-[3rem] shadow-2xl shadow-emerald-900/20 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden">
@@ -282,7 +280,6 @@
                                             </div>
                                         </div>
                                     ) : (
-                                        /* 修正：Iframe 區域，移除多餘的 flex-grow 與內邊距 */
                                         <div className="iframe-container h-full">
                                             <iframe 
                                                 src={activeSubIndex === 'test' ? currentChapter.testUrl : currentChapter.subpages[activeSubIndex].url} 
