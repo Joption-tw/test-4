@@ -3,248 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>期權煉金術：選擇權教學實戰</title>
-    <!-- Tailwind CSS CDN -->
+    <title>BOOM! 選擇權三態：價內、價平、價外 | 歐大選擇權教室</title>
+    <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM CDN -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel CDN (用於在瀏覽器中編譯 JSX) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        /* 漫畫普普風專屬 CSS 變數 */
+        :root {
+            --c-bg: #F4F4F8; /* 淺灰背景 */
+            --c-itm: #FF007F; /* 價內：洋紅色 (有價值/火熱) */
+            --c-atm: #93C5FD; /* 價平：淡藍色 (交戰區) */
+            --c-otm: #00FFFF; /* 價外：青藍色 (無價值/冰冷) */
+            --c-dark: #111111; /* 純黑邊框 */
+            --c-text: #111111;
+        }
+
         body {
             font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--c-bg);
+            color: var(--c-text);
+            /* 美式漫畫半色調網點背景 */
+            background-image: radial-gradient(#D1D5DB 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        .font-comic {
+            font-family: 'Bangers', 'Noto Sans TC', cursive;
+            letter-spacing: 0.05em;
+        }
+
+        /* 普普風卡通邊框與陰影 */
+        .pop-card {
+            border: 4px solid var(--c-dark);
+            border-radius: 1rem;
+            background-color: white;
+            box-shadow: 8px 8px 0px var(--c-dark);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .pop-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 10px 10px 0px var(--c-dark);
+        }
+
+        /* 狀態專屬標籤與卡片 */
+        .card-itm { box-shadow: 8px 8px 0px var(--c-itm); border-color: var(--c-dark); }
+        .card-atm { box-shadow: 8px 8px 0px var(--c-atm); border-color: var(--c-dark); }
+        .card-otm { box-shadow: 8px 8px 0px var(--c-otm); border-color: var(--c-dark); }
+
+        /* 膠囊型容器 (Header/Footer) */
+        .capsule-container {
+            background: white;
+            border: 4px solid var(--c-dark);
+            border-radius: 9999px;
+            box-shadow: 0 8px 0 var(--c-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header-capsule { padding: 0.6rem 2.5rem; }
+        .footer-capsule { padding: 1.5rem 2rem; margin-bottom: 2rem; }
+
+        /* 互動拉桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            background: var(--c-atm);
+            cursor: pointer;
+            margin-top: -18px;
+            border: 4px solid var(--c-dark);
+            box-shadow: 0 4px 0 var(--c-dark);
+            transition: transform 0.1s;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 9 12 5 16 9"></polyline><polyline points="16 15 12 19 8 15"></polyline></svg>');
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 16px;
+            cursor: pointer;
+            background: #E5E7EB;
+            border-radius: 10px;
+            border: 4px solid var(--c-dark);
+        }
+
+        /* 狀態標籤動畫 */
+        .state-tag {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 640px) {
+            .capsule-container { border-radius: 1.5rem; padding: 1rem; }
+            .header-capsule { padding: 0.5rem 1rem; }
+            .pop-card { border-width: 3px; box-shadow: 6px 6px 0px var(--c-dark); }
+            input[type=range]::-webkit-slider-thumb { height: 40px; width: 40px; margin-top: -14px;}
         }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
+<body class="min-h-screen flex flex-col items-center p-3 sm:p-4 md:p-8 overflow-x-hidden w-full">
 
-    <script type="text/babel">
-        // 為了在單一 HTML 中運行，我們手動定義一些簡單的 SVG 圖標組件
-        const Icon = ({ name, className = "w-5 h-5" }) => {
-            // 這裡使用 lucide 官方提供的注入方式或簡單的 SVG
-            return <i data-lucide={name} className={className}></i>;
-        };
-
-        const App = () => {
-            const [activeTab, setActiveTab] = React.useState('chain');
-            const basePrice = 30000;
-            const interval = 50;
-
-            // 初始化圖標
-            React.useEffect(() => {
-                lucide.createIcons();
-            }, []);
-
-            // 生成選擇權序列數據
-            const generateData = () => {
-                const data = [];
-                for (let i = 5; i >= -5; i--) {
-                    const strike = basePrice - (i * interval);
-                    let callStatus, putStatus, callColor, putColor;
-
-                    if (strike < basePrice) {
-                        callStatus = "價內 (ITM)";
-                        callColor = "bg-red-100 text-red-700 border-red-200";
-                    } else if (strike === basePrice) {
-                        callStatus = "價平 (ATM)";
-                        callColor = "bg-blue-100 text-blue-700 border-blue-200 font-bold";
-                    } else {
-                        callStatus = "價外 (OTM)";
-                        callColor = "bg-green-100 text-green-700 border-green-200";
-                    }
-
-                    if (strike > basePrice) {
-                        putStatus = "價內 (ITM)";
-                        putColor = "bg-red-100 text-red-700 border-red-200";
-                    } else if (strike === basePrice) {
-                        putStatus = "價平 (ATM)";
-                        putColor = "bg-blue-100 text-blue-700 border-blue-200 font-bold";
-                    } else {
-                        putStatus = "價外 (OTM)";
-                        putColor = "bg-green-100 text-green-700 border-green-200";
-                    }
-
-                    const offset = Math.abs(i);
-                    const label = i === 0 ? "價平" : (i > 0 ? `價內${offset}檔` : `價外${offset}檔`);
-                    const putLabel = i === 0 ? "價平" : (i > 0 ? `價外${offset}檔` : `價內${offset}檔`);
-
-                    data.push({ strike, callStatus, putStatus, callColor, putColor, i, label, putLabel });
-                }
-                return data;
-            };
-
-            const chainData = generateData();
-
-            return (
-                <div className="min-h-screen text-slate-900">
-                    {/* 導航欄 */}
-                    <nav className="bg-white border-b sticky top-0 z-50 shadow-sm">
-                        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-indigo-600 p-2 rounded-lg text-white">
-                                    <Icon name="trending-up" />
-                                </div>
-                                <span className="font-bold text-xl tracking-tight italic">期權煉金術 <span className="text-indigo-600">Alchemist</span></span>
-                            </div>
-                            <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-                                <button className="text-indigo-600 border-b-2 border-indigo-600 pb-1">實戰報價表</button>
-                                <button className="hover:text-indigo-600">核心理論</button>
-                                <button className="hover:text-indigo-600 transition-colors">交易策略</button>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded">V2.0 (50pt)</span>
-                                <button className="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-all shadow-md">
-                                    登入學習
-                                </button>
-                            </div>
-                        </div>
-                    </nav>
-
-                    <main className="max-w-6xl mx-auto px-4 py-8">
-                        {/* Header Section */}
-                        <section className="mb-10 text-center md:text-left">
-                            <div className="inline-block bg-indigo-50 text-indigo-700 px-4 py-1 rounded-full text-sm font-bold mb-4">
-                                🔥 實戰案例：台指期 30,000 點
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-black mb-4 text-slate-800">
-                                精準掌握：選擇權 <span className="text-indigo-600">50 點</span> 級距檔位
-                            </h1>
-                            <p className="text-slate-600 max-w-2xl text-lg leading-relaxed">
-                                我們將階梯細分化，讓你在波動中看見更細微的機會。記住核心口訣：<span className="text-red-600 font-bold">價內看紅（實質價值）</span>，<span className="text-green-600 font-bold">價外看綠（期待夢想）</span>。
-                            </p>
-                        </section>
-
-                        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-                            <div className="xl:col-span-3">
-                                <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
-                                    <div className="p-6 border-b flex justify-between items-center bg-white">
-                                        <div>
-                                            <h2 className="font-black text-xl text-slate-800 flex items-center gap-2">
-                                                <Icon name="target" className="text-indigo-600 w-6 h-6" />
-                                                週選/月選 報價階梯
-                                            </h2>
-                                            <p className="text-xs text-slate-400 mt-1">更新頻率：即時 (模擬 30,000 點行情)</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <div className="flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
-                                                <div className="w-2 h-2 bg-red-500 rounded-full"></div> 價內
-                                            </div>
-                                            <div className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
-                                                <div className="w-2 h-2 bg-green-500 rounded-full"></div> 價外
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-center">
-                                            <thead className="bg-slate-50 text-slate-500 font-bold border-b">
-                                                <tr>
-                                                    <th className="py-5 px-4 text-[11px] uppercase tracking-wider">Call 狀態</th>
-                                                    <th className="py-5 px-4 text-slate-800">檔位標籤</th>
-                                                    <th className="py-5 px-4 bg-slate-800 text-white text-lg font-black italic">履約價</th>
-                                                    <th className="py-5 px-4 text-slate-800">檔位標籤</th>
-                                                    <th className="py-5 px-4 text-[11px] uppercase tracking-wider">Put 狀態</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {chainData.map((row, idx) => (
-                                                    <tr key={idx} className={`border-b last:border-0 hover:bg-slate-50 transition-all ${row.strike === basePrice ? 'bg-indigo-50/30' : ''}`}>
-                                                        <td className="py-4 px-4">
-                                                            <div className={`inline-block w-24 py-1.5 rounded-lg border font-bold text-[11px] shadow-sm ${row.callColor}`}>
-                                                                {row.callStatus}
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-4 px-4 font-bold text-slate-400">
-                                                            {row.label}
-                                                        </td>
-                                                        <td className={`py-4 px-4 font-black text-xl ${row.strike === basePrice ? 'text-indigo-600 scale-110' : 'text-slate-700'}`}>
-                                                            {row.strike.toLocaleString()}
-                                                        </td>
-                                                        <td className="py-4 px-4 font-bold text-slate-400">
-                                                            {row.putLabel}
-                                                        </td>
-                                                        <td className="py-4 px-4">
-                                                            <div className={`inline-block w-24 py-1.5 rounded-lg border font-bold text-[11px] shadow-sm ${row.putColor}`}>
-                                                                {row.putStatus}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    
-                                    <div className="p-5 bg-slate-50 border-t flex items-center justify-between text-slate-500">
-                                        <div className="flex items-center gap-4 text-xs font-medium">
-                                            <span className="flex items-center gap-1"><Icon name="info" className="w-3 h-3" /> 單位：指數點</span>
-                                            <span className="flex items-center gap-1"><Icon name="calculator" className="w-3 h-3" /> 級距：50 點</span>
-                                        </div>
-                                        <div className="text-xs italic">
-                                            標的價格：30,000 | 市場狀態：盤整
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
-                                    <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2 text-lg">
-                                        <Icon name="book-open" className="text-indigo-600 w-6 h-6" />
-                                        作家觀點：色標邏輯
-                                    </h3>
-                                    <div className="space-y-6">
-                                        <div className="relative pl-6 border-l-2 border-red-500">
-                                            <div className="absolute -left-[5px] top-0 w-2 h-2 bg-red-500 rounded-full"></div>
-                                            <h4 className="font-bold text-red-700 text-sm">紅色區塊：價內 (ITM)</h4>
-                                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                                                代表這張合約「已經賺錢」。它含有內涵價值，當你想要穩健跟隨期貨走勢時，這裡是你的首選。
-                                            </p>
-                                        </div>
-                                        <div className="relative pl-6 border-l-2 border-green-500">
-                                            <div className="absolute -left-[5px] top-0 w-2 h-2 bg-green-500 rounded-full"></div>
-                                            <h4 className="font-bold text-green-700 text-sm">綠色區塊：價外 (OTM)</h4>
-                                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                                                代表合約目前「尚未兌現」。價格便宜，但若到期前標的不動，權利金會隨時間迅速歸零。
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-slate-900 p-6 rounded-3xl shadow-xl text-white">
-                                    <h3 className="font-bold mb-4 flex items-center gap-2 text-indigo-400">
-                                        <Icon name="shield-alert" className="w-5 h-5" />
-                                        實戰建議
-                                    </h3>
-                                    <ul className="text-xs space-y-4 opacity-90 leading-relaxed">
-                                        <li className="flex gap-2">
-                                            <Icon name="chevron-right" className="text-indigo-500 w-4 h-4 flex-shrink-0" />
-                                            <span>50 點級距讓賣方能更精確地進行動態調整與避險。</span>
-                                        </li>
-                                        <li className="flex gap-2">
-                                            <Icon name="chevron-right" className="text-indigo-500 w-4 h-4 flex-shrink-0" />
-                                            <span>權利金跳動較 100 點更綿密，可減少滑價損失。</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <footer className="mt-20 py-12 border-t text-center">
-                            <p className="text-slate-400 text-sm font-medium">© 2024 期權煉金術：台指期實戰教學網站</p>
-                            <p className="text-slate-300 text-[10px] mt-2 tracking-widest uppercase">投資有風險，操作需謹慎。本網站內容僅供學習參考。</p>
-                        </footer>
-                    </main>
+    <!-- 頁首：標頭設計 -->
+    <header class="w-full flex justify-center mb-10 md:mb-16 relative z-10 px-2">
+        <div class="capsule-container header-capsule flex-row w-full max-w-3xl">
+            <div class="flex items-center justify-center gap-3 md:gap-6 w-full">
+                <!-- Logo -->
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl border-2 border-[var(--c-dark)] overflow-hidden shadow-sm shrink-0 bg-white">
+                    <img src="IP標籤.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100/FF007F/FFFFFF?text=Logo&font=Bangers'">
                 </div>
-            );
-        };
+                <!-- 文字 -->
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-black text-[var(--c-dark)] leading-none mb-1 tracking-wide">
+                        歐大選擇權教室
+                    </h1>
+                    <p class="text-[10px] sm:text-xs md:text-sm font-black text-gray-600 tracking-[0.1em] sm:tracking-[0.2em] uppercase leading-none mt-1 font-comic">
+                        JOPTION ACADEMY
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+    <!-- 主要內容區 -->
+    <main class="w-full max-w-5xl flex-grow flex flex-col gap-10 md:gap-16">
+        
+        <!-- 大標題區 -->
+        <div class="text-center px-2">
+            <div class="inline-block bg-[var(--c-atm)] px-6 sm:px-12 py-4 sm:py-6 pop-card transform rotate-2 relative max-w-full z-10">
+                <div class="absolute -top-6 -left-6 md:-top-8 md:-left-8 text-5xl md:text-7xl transform -rotate-12 drop-shadow-md">💥</div>
+                <h2 class="text-3xl sm:text-4xl md:text-6xl font-black text-[var(--c-dark)] tracking-wide font-comic uppercase">
+                    ITM / ATM / OTM
+                </h2>
+                <div class="mt-2 text-lg md:text-2xl font-black text-white bg-[var(--c-itm)] px-4 py-1 inline-block rounded-lg transform -rotate-2 border-2 border-[var(--c-dark)]">
+                    選擇權的三種狀態：價內、價平、價外
+                </div>
+            </div>
+        </div>
+
+        <!-- 觀念比喻：賽跑與終點線 -->
+        <section class="px-2 md:px-0 flex flex-col items-center">
+            <div class="bg-white pop-card p-6 md:p-10 w-full relative overflow-hidden">
+                <div class="absolute top-4 right-4 text-4xl opacity-20">🏃‍♂️🏁</div>
+                <h3 class="text-2xl md:text-3xl font-black mb-6 text-[var(--c-dark)] border-b-4 border-[var(--c-dark)] inline-block pb-2">
+                    💡 簡單比喻：賽跑與終點線
+                </h3>
+                <p class="text-lg md:text-xl font-bold text-gray-700 leading-relaxed mb-8">
+                    想像你在賭一場賽跑。大盤指數是<strong class="text-[var(--c-dark)]">「跑者目前的位置」</strong>，而履約價是你設定的<strong class="text-[var(--c-dark)]">「終點線」</strong>。
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 價內 -->
+                    <div class="border-4 border-[var(--c-dark)] rounded-xl p-5 bg-pink-50 relative card-itm">
+                        <div class="bg-[var(--c-itm)] text-white font-black px-3 py-1 inline-block rounded border-2 border-[var(--c-dark)] mb-3">價內 (ITM)</div>
+                        <h4 class="text-xl font-black mb-2">已經衝過終點線！</h4>
+                        <p class="text-sm font-bold text-gray-600">跑者已經超越你設定的目標。這張合約具備「真實價值 (內含價值)」，所以權利金最貴。</p>
+                    </div>
+                    <!-- 價平 -->
+                    <div class="border-4 border-[var(--c-dark)] rounded-xl p-5 bg-blue-50 relative card-atm transform md:-translate-y-4">
+                        <div class="bg-[var(--c-atm)] text-[var(--c-dark)] font-black px-3 py-1 inline-block rounded border-2 border-[var(--c-dark)] mb-3">價平 (ATM)</div>
+                        <h4 class="text-xl font-black mb-2">剛好踩在終點線上！</h4>
+                        <p class="text-sm font-bold text-gray-600">目前不輸不贏，戰況最激烈！這裡只剩下純粹的「時間價值」，是多空交戰的一級戰區。</p>
+                    </div>
+                    <!-- 價外 -->
+                    <div class="border-4 border-[var(--c-dark)] rounded-xl p-5 bg-cyan-50 relative card-otm">
+                        <div class="bg-[var(--c-otm)] text-[var(--c-dark)] font-black px-3 py-1 inline-block rounded border-2 border-[var(--c-dark)] mb-3">價外 (OTM)</div>
+                        <h4 class="text-xl font-black mb-2">還沒跑到終點線...</h4>
+                        <p class="text-sm font-bold text-gray-600">目前是個只剩夢想的廢紙。沒有真實價值，所以權利金很便宜，像買樂透一樣。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ★ 超級互動區：動態 T 字報價表 ★ -->
+        <section class="px-2 md:px-0 flex flex-col items-center mt-4">
+            <h3 class="text-2xl md:text-4xl font-black mb-4 text-[var(--c-dark)] tracking-wide text-center">
+                🎮 終極互動：動態 T 字報價表
+            </h3>
+            <p class="text-center text-lg font-bold text-gray-600 mb-8 max-w-2xl">
+                試著滑動下方的大盤拉桿，觀察當台指期在 <strong class="text-[var(--c-dark)]">30,000 點</strong> 上下跳動時，左右兩邊買權與賣權的狀態會如何瞬間翻轉！
+            </p>
+
+            <div class="w-full pop-card bg-[#1E293B] p-4 md:p-8 relative pb-12 md:pb-16">
+                
+                <!-- 大盤控制拉桿 (置於頂部) -->
+                <div class="bg-white border-4 border-[var(--c-dark)] rounded-2xl p-5 mb-8 shadow-[4px_4px_0_var(--c-atm)] relative z-20">
+                    <div class="flex justify-between items-end mb-6">
+                        <span class="text-lg md:text-xl font-black text-gray-700">🎯 目前台指期大盤位置：</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="marketPriceDisplay" class="text-4xl md:text-5xl font-black text-[var(--c-itm)] font-comic">30000</span>
+                            <span class="text-lg font-black text-gray-500">點</span>
+                        </div>
+                    </div>
+                    
+                    <div class="px-2">
+                        <input type="range" id="marketSlider" min="29600" max="30400" step="50" value="30000">
+                    </div>
+                    
+                    <div class="flex justify-between mt-4 text-xs md:text-sm font-black text-gray-400 px-2">
+                        <span>29600 (大跌)</span>
+                        <span>30000 (平盤)</span>
+                        <span>30400 (大漲)</span>
+                    </div>
+                </div>
+
+                <!-- T字報價表主體 -->
+                <div class="w-full relative">
+                    <!-- 表頭 -->
+                    <div class="grid grid-cols-3 text-center border-b-4 border-[#334155] pb-4 mb-4">
+                        <div class="font-black text-xl md:text-3xl text-white tracking-widest">
+                            買權 CALL<br><span class="text-sm text-gray-400 font-bold block mt-1">看漲 (猜大盤會漲過履約價)</span>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <span class="bg-[#334155] text-[var(--c-atm)] font-black text-xl md:text-2xl px-4 py-2 rounded-xl border-2 border-[var(--c-dark)]">履約價</span>
+                        </div>
+                        <div class="font-black text-xl md:text-3xl text-white tracking-widest">
+                            賣權 PUT<br><span class="text-sm text-gray-400 font-bold block mt-1">看跌 (猜大盤會跌破履約價)</span>
+                        </div>
+                    </div>
+
+                    <!-- 報價列容器 -->
+                    <div class="flex flex-col gap-1.5 md:gap-2" id="tBoardContainer">
+                        <!-- Row 29700 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29700">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29700</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 29750 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29750">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29750</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 29800 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29800">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29800</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 29850 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29850">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29850</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 29900 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29900">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29900</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 29950 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="29950">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">29950</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30000 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30000">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30000</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30050 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30050">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30050</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30100 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30100">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30100</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30150 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30150">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30150</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30200 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30200">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30200</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30250 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30250">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30250</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                        <!-- Row 30300 -->
+                        <div class="grid grid-cols-3 text-center items-stretch h-10 md:h-12 gap-1 md:gap-2 row-strike" data-strike="30300">
+                            <div class="call-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                            <div class="strike-cell flex items-center justify-center font-black text-lg md:text-xl text-white tracking-wider bg-[#0F172A] rounded-lg border border-[#334155]">30300</div>
+                            <div class="put-cell flex items-center justify-center rounded-lg border-2 border-[#334155] state-tag font-black text-xs md:text-base"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 狀態價值拆解表 (統整) -->
+        <section class="px-2 md:px-0 flex flex-col items-center mt-4">
+            <h3 class="text-2xl md:text-4xl font-black mb-8 text-[var(--c-dark)] tracking-wide text-center font-comic">
+                📚 價值拆解總表
+            </h3>
+            <div class="w-full pop-card p-0 overflow-hidden relative">
+                <div class="w-full overflow-x-auto">
+                    <table class="w-full text-left min-w-[600px] border-collapse">
+                        <thead>
+                            <tr class="bg-[var(--c-dark)] text-white">
+                                <th class="py-4 px-6 font-black text-lg border-b-4 border-[var(--c-dark)] w-1/4">狀態</th>
+                                <th class="py-4 px-6 font-black text-lg border-b-4 border-[var(--c-dark)]">買權 (Call) 條件</th>
+                                <th class="py-4 px-6 font-black text-lg border-b-4 border-[var(--c-dark)]">賣權 (Put) 條件</th>
+                                <th class="py-4 px-6 font-black text-lg border-b-4 border-[var(--c-dark)]">權利金組成</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-800 font-bold divide-y-4 divide-gray-200">
+                            <tr class="hover:bg-pink-50 transition-colors">
+                                <td class="py-5 px-6">
+                                    <span class="bg-[var(--c-itm)] text-white px-3 py-1 rounded border-2 border-[var(--c-dark)] font-black text-sm whitespace-nowrap">價內 ITM</span>
+                                </td>
+                                <td class="py-5 px-6">大盤 <strong class="text-red-600 text-xl">></strong> 履約價</td>
+                                <td class="py-5 px-6">大盤 <strong class="text-green-600 text-xl"><</strong> 履約價</td>
+                                <td class="py-5 px-6 text-[var(--c-itm)] font-black">內含價值 + 時間價值</td>
+                            </tr>
+                            <tr class="hover:bg-blue-50 transition-colors bg-blue-50/30">
+                                <td class="py-5 px-6">
+                                    <span class="bg-[var(--c-atm)] text-[var(--c-dark)] px-3 py-1 rounded border-2 border-[var(--c-dark)] font-black text-sm whitespace-nowrap">價平 ATM</span>
+                                </td>
+                                <td class="py-5 px-6">大盤 <strong class="text-blue-500 text-xl">≈</strong> 履約價</td>
+                                <td class="py-5 px-6">大盤 <strong class="text-blue-500 text-xl">≈</strong> 履約價</td>
+                                <td class="py-5 px-6 text-[var(--c-dark)] font-black">
+                                    只有時間價值<br><span class="text-sm font-bold text-gray-500">(此時時間價值最大)</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-cyan-50 transition-colors">
+                                <td class="py-5 px-6">
+                                    <span class="bg-[var(--c-otm)] text-[var(--c-dark)] px-3 py-1 rounded border-2 border-[var(--c-dark)] font-black text-sm whitespace-nowrap">價外 OTM</span>
+                                </td>
+                                <td class="py-5 px-6">大盤 <strong class="text-green-600 text-xl"><</strong> 履約價</td>
+                                <td class="py-5 px-6">大盤 <strong class="text-red-600 text-xl">></strong> 履約價</td>
+                                <td class="py-5 px-6 text-gray-500 font-black">只有時間價值</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="w-full flex justify-center mt-16 pb-10 relative z-10 px-2">
+        <div class="capsule-container footer-capsule text-center">
+            <div class="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-3">
+                <div class="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 border-[var(--c-dark)] overflow-hidden shadow-sm shrink-0 bg-white">
+                    <img src="IP標籤.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100/FFD500/000000?text=Logo&font=Bangers'">
+                </div>
+                <div class="flex items-center flex-wrap justify-center">
+                    <span class="text-lg md:text-2xl font-black tracking-tight text-[var(--c-dark)] font-comic">JOPTION</span>
+                    <span class="mx-2 md:mx-4 text-gray-300 font-light text-xl hidden sm:inline">|</span>
+                    <span class="text-base md:text-xl font-bold text-[var(--c-dark)] w-full sm:w-auto mt-1 sm:mt-0">歐大選擇權教室</span>
+                </div>
+            </div>
+            <div class="text-center w-full mt-2">
+                <p class="text-[10px] md:text-sm text-gray-500 font-bold tracking-tight">
+                    © 2026 Joption Academy - 金融教育僅供參考，投資有風險，操作需謹慎。
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 互動邏輯腳本：動態 T字報價表 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const marketSlider = document.getElementById('marketSlider');
+            const marketPriceDisplay = document.getElementById('marketPriceDisplay');
+            const rows = document.querySelectorAll('.row-strike');
+
+            // 定義狀態 CSS Class
+            const classITM = ['bg-[var(--c-itm)]', 'text-white', 'border-[var(--c-itm)]', 'shadow-[inset_0_0_10px_rgba(0,0,0,0.3)]'];
+            const classATM = ['bg-[var(--c-atm)]', 'text-[var(--c-dark)]', 'border-[var(--c-dark)]', 'shadow-[4px_4px_0_#111]', 'transform', 'scale-105', 'z-10'];
+            const classOTM = ['bg-[#334155]', 'text-[#94A3B8]', 'border-[#475569]'];
+            
+            // 清除樣式工具函數
+            function clearClasses(el) {
+                el.classList.remove(...classITM, ...classATM, ...classOTM);
+                el.innerHTML = ''; // 清除文字
+            }
+
+            function updateTBoard() {
+                const marketPrice = parseInt(marketSlider.value);
+                
+                // 動態更新數字跳動效果
+                marketPriceDisplay.innerText = marketPrice.toLocaleString();
+                
+                // 改變數字顏色：如果大於30000顯示紅色系，小於顯示綠色系，等於顯示淡藍色
+                if (marketPrice > 30000) {
+                    marketPriceDisplay.style.color = '#EF4444'; // 紅
+                } else if (marketPrice < 30000) {
+                    marketPriceDisplay.style.color = '#22C55E'; // 綠
+                } else {
+                    marketPriceDisplay.style.color = 'var(--c-atm)'; // 淡藍
+                }
+
+                // 中文數字轉換陣列 (對應檔數)
+                const zhNums = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六'];
+
+                // 遍歷所有履約價行
+                rows.forEach(row => {
+                    const strike = parseInt(row.getAttribute('data-strike'));
+                    const callCell = row.querySelector('.call-cell');
+                    const putCell = row.querySelector('.put-cell');
+                    const strikeCell = row.querySelector('.strike-cell');
+
+                    clearClasses(callCell);
+                    clearClasses(putCell);
+                    
+                    // 計算檔位差距 (每 50 點為 1 檔)
+                    const diff = Math.abs(marketPrice - strike);
+                    const level = diff / 50;
+                    const levelText = zhNums[level] || level; // 取得中文檔數，若超出陣列則直接顯示數字
+
+                    // --- 判斷 Call 的狀態 ---
+                    // Call (看漲)：大盤 > 履約價 = 價內
+                    if (marketPrice > strike) {
+                        callCell.classList.add(...classITM);
+                        callCell.innerHTML = `價內${levelText}檔 ITM`;
+                    } else if (marketPrice === strike) {
+                        callCell.classList.add(...classATM);
+                        callCell.innerHTML = '價平 ATM 💥';
+                    } else {
+                        callCell.classList.add(...classOTM);
+                        callCell.innerHTML = `價外${levelText}檔 OTM`;
+                    }
+
+                    // --- 判斷 Put 的狀態 ---
+                    // Put (看跌)：大盤 < 履約價 = 價內
+                    if (marketPrice < strike) {
+                        putCell.classList.add(...classITM);
+                        putCell.innerHTML = `價內${levelText}檔 ITM`;
+                    } else if (marketPrice === strike) {
+                        putCell.classList.add(...classATM);
+                        putCell.innerHTML = '價平 ATM 💥';
+                    } else {
+                        putCell.classList.add(...classOTM);
+                        putCell.innerHTML = `價外${levelText}檔 OTM`;
+                    }
+
+                    // 凸顯當前價平的履約價中間那格
+                    if (marketPrice === strike) {
+                        strikeCell.classList.add('bg-[var(--c-atm)]', 'text-[var(--c-dark)]');
+                        strikeCell.classList.remove('bg-[#0F172A]', 'text-white');
+                    } else {
+                        strikeCell.classList.remove('bg-[var(--c-atm)]', 'text-[var(--c-dark)]');
+                        strikeCell.classList.add('bg-[#0F172A]', 'text-white');
+                    }
+                });
+            }
+
+            // 綁定事件
+            marketSlider.addEventListener('input', updateTBoard);
+            
+            // 初始執行
+            updateTBoard();
+        });
     </script>
 </body>
 </html>
